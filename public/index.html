@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-SPEC | Dyno Tuning & Rare Parts</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="logo-m">M</span><span class="logo-spec">-SPEC</span>
+      </a>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#catalog" class="nav-link">PARTS</a></li>
+        <li><a href="#booking" class="nav-link">DYNO BOOKING</a></li>
+        <li><a href="#orders" class="nav-link">MY ORDERS</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="btn-icon" id="btn-cart" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span class="cart-badge" id="cart-count">0</span>
+        </button>
+        <button class="btn-ghost" id="btn-login">LOGIN</button>
+        <button class="btn-primary" id="btn-register">REGISTER</button>
+      </div>
+
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="hero-bg-text" aria-hidden="true">DYNO</div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">CHIANG MAI'S PREMIER TUNING HOUSE</p>
+      <h1 class="hero-title">PUSH THE<br /><em>LIMIT.</em></h1>
+      <p class="hero-sub">Dyno Tuning · Rare Parts · Performance Engineering</p>
+      <div class="hero-ctas">
+        <a href="#booking" class="btn-primary btn-lg">BOOK DYNO SESSION</a>
+        <a href="#catalog" class="btn-outline btn-lg">BROWSE PARTS</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num">500+</span>
+      <span class="stat-label">DYNO SESSIONS</span>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item">
+      <span class="stat-num">200+</span>
+      <span class="stat-label">RARE PARTS</span>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item">
+      <span class="stat-num">MAX 3</span>
+      <span class="stat-label">CARS / SLOT</span>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item">
+      <span class="stat-num">5★</span>
+      <span class="stat-label">RATED SERVICE</span>
+    </div>
+  </div>
+
+  <!-- ===== CATALOG SECTION ===== -->
+  <section id="catalog" class="section">
+    <div class="section-header">
+      <p class="section-eyebrow">RARE PARTS MARKETPLACE</p>
+      <h2 class="section-title">CATALOG</h2>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="SEARCH PARTS..." class="input-search" />
+      </div>
+      <div class="filter-controls">
+        <select id="filter-category" class="input-select">
+          <option value="">ALL CATEGORIES</option>
+          <option value="engine">ENGINE</option>
+          <option value="exhaust">EXHAUST</option>
+          <option value="suspension">SUSPENSION</option>
+          <option value="turbo">TURBO</option>
+          <option value="brake">BRAKE</option>
+        </select>
+        <select id="filter-price" class="input-select">
+          <option value="">ALL PRICES</option>
+          <option value="0-5000">฿0 – ฿5,000</option>
+          <option value="5000-20000">฿5,000 – ฿20,000</option>
+          <option value="20000-999999">฿20,000+</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Parts Grid — rendered by main.js -->
+    <div id="parts-container" class="parts-grid">
+      <!-- renderParts() injects cards here -->
+      <div class="parts-empty" id="parts-empty">
+        <p>Loading parts...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOOKING SECTION ===== -->
+  <section id="booking" class="section section-dark">
+    <div class="section-header">
+      <p class="section-eyebrow">PERFORMANCE TESTING</p>
+      <h2 class="section-title">DYNO BOOKING</h2>
+    </div>
+
+    <div class="booking-layout">
+      <div class="booking-info">
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+          <div>
+            <h4>PICK A DATE</h4>
+            <p>Choose from available slots. Max 3 cars per session — guaranteed bay time.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <div>
+            <h4>SESSION DURATION</h4>
+            <p>Full dyno pull session — 2–4 hours including setup and data logging.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+          <div>
+            <h4>LIVE DATA</h4>
+            <p>Real-time HP / TQ graphs. Full ECU log report delivered same day.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots Grid — rendered by main.js -->
+      <div class="slots-wrapper">
+        <div id="slots-container" class="slots-grid">
+          <!-- renderSlots() injects slot cards here -->
+          <div class="slots-empty" id="slots-empty">
+            <p>Loading available slots...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CART SIDEBAR ===== -->
+  <aside id="cart-sidebar" class="cart-sidebar" aria-hidden="true">
+    <div class="cart-header">
+      <h3>YOUR CART</h3>
+      <button class="btn-icon" id="btn-close-cart" aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="cart-items" class="cart-items">
+      <!-- renderCart() injects items here -->
+      <p class="cart-empty-msg">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>TOTAL</span>
+        <span id="cart-total">฿0</span>
+      </div>
+      <button class="btn-primary btn-block" id="btn-checkout">PROCEED TO CHECKOUT</button>
+    </div>
+  </aside>
+  <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
+
+  <!-- ===== ORDER HISTORY SECTION ===== -->
+  <section id="orders" class="section">
+    <div class="section-header">
+      <p class="section-eyebrow">ACCOUNT</p>
+      <h2 class="section-title">MY ORDERS</h2>
+    </div>
+    <div id="orders-container" class="orders-list">
+      <!-- renderOrders() injects order cards here -->
+      <p class="orders-empty-msg">No orders yet. Book a session or grab some parts!</p>
+    </div>
+  </section>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div id="auth-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="btn-close-modal" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="login">LOGIN</button>
+        <button class="modal-tab" data-tab="register">REGISTER</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="tab-login" class="modal-body">
+        <h2 id="modal-title" class="modal-title">WELCOME BACK</h2>
+        <div class="form-group">
+          <label class="form-label" for="login-email">EMAIL</label>
+          <input type="email" id="login-email" class="form-input" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">PASSWORD</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" />
+        </div>
+        <p class="form-error hidden" id="login-error"></p>
+        <button class="btn-primary btn-block" id="btn-login-submit">LOGIN</button>
+      </div>
+
+      <!-- Register Form -->
+      <div id="tab-register" class="modal-body hidden">
+        <h2 class="modal-title">CREATE ACCOUNT</h2>
+        <div class="form-group">
+          <label class="form-label" for="reg-name">FULL NAME</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">EMAIL</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">PASSWORD</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" />
+        </div>
+        <p class="form-error hidden" id="reg-error"></p>
+        <button class="btn-primary btn-block" id="btn-register-submit">CREATE ACCOUNT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-m">M</span><span class="logo-spec">-SPEC</span>
+        <p>Dyno Tuning & Rare Parts<br />Chiang Mai, Thailand</p>
+      </div>
+      <div class="footer-links">
+        <a href="#catalog">Parts</a>
+        <a href="#booking">Booking</a>
+        <a href="#orders">Orders</a>
+      </div>
+      <p class="footer-copy">© 2026 M-SPEC BY WPF · 960121</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>
