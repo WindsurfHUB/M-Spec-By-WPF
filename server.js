@@ -1,22 +1,36 @@
+// server.js
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const { initDb } = require('./src/db/init');
 
 const app = express();
-const PORT = process.env.PORT || 888;
+const PORT = process.env.PORT || 3000;
 
-// Middleware สำหรับจัดการข้อมููลรูปแบบ JSON (Body Parsing)
+// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
 app.use(express.json());
-
-// เสิร์ฟไฟล์ Static ของฝั่ง Frontend (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// สแตนด์บาย Route พื้นฐานสำหรับทดสอบระบบ
-app.get('/api/health', (req, res) => {
-  res.json({ status: "OK", message: "Server is running smoothly" });
+// ─── ROUTES (wire in as you build them) ──────────────────────────────────────
+app.use('/api/auth', require('./src/routes/authRoutes'));
+// app.use('/api/parts', require('./src/routes/catalogRoutes'));
+// app.use('/api/slots', require('./src/routes/catalogRoutes'));
+// app.use('/api/orders', require('./src/routes/orderRoutes'));
+// app.use('/api/bookings',require('./src/routes/bookingRoutes'));
+// app.use('/api/admin', require('./src/routes/adminRoutes'));
+
+// ─── GLOBAL ERROR HANDLER ────────────────────────────────────────────────────
+// Catches any error passed via next(err) — hides stack trace from client
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err.stack);           // logs for developer
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal server error' // clean message for client
+  });
 });
 
-// เริ่มต้นเปิดเซิร์ฟเวอร์ตาม Port ที่กำหนดไว้ใน .env
+// ─── STARTUP ──────────────────────────────────────────────────────────────────
+initDb(); // creates all tables + seeds data on first run
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`[SERVER] Running on http://localhost:${PORT}`);
 });
