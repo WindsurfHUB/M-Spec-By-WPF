@@ -1138,3 +1138,150 @@ ul { list-style: none; }
 .toast-success svg { color: #2ecc71; }
 .toast-error { border-color: rgba(192,57,43,0.4); }
 .toast-error svg { color: var(--c-red); }
+
+/* =============================================
+   AUTH ADDITIONS
+   ============================================= */
+
+/* User chip in navbar */
+.nav-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 4px 4px 14px;
+}
+.chip-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--c-white);
+}
+.chip-logout {
+  font-size: 10px;
+  color: var(--c-muted);
+  padding: 5px 10px;
+  border-left: 1px solid var(--c-border);
+  margin-left: 4px;
+  border-radius: 0;
+}
+.chip-logout:hover { color: var(--c-red); }
+
+/* Input focus ring */
+.form-input:focus {
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.15);
+}
+
+/* Modal animation */
+.modal {
+  transform: translateY(12px);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.modal-overlay.open .modal {
+  transform: translateY(0);
+}
+
+/* Divider between login/register */
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--c-mid);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.modal-divider::before,
+.modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+}
+
+/* Password strength hint */
+.password-hint {
+  font-size: 11px;
+  color: var(--c-mid);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+/* =============================================
+   SLOT BOOKING ADDITIONS
+   ============================================= */
+.slot-badge-full {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  padding: 6px 14px;
+  background: rgba(192,57,43,0.1);
+  color: var(--c-red);
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  width: 100%;
+}
+
+.btn-book-slot {
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 8px 16px;
+}
+
+.slot-card:not(.slot-full):hover .slot-time {
+  color: var(--c-red);
+  transition: color var(--transition);
+}
+
+/* =============================================
+   LOADING STATE
+   ============================================= */
+.loading-state {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+}
+
+.loading-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+.loading-dots::before,
+.loading-dots::after,
+.loading-dots {
+  content: '';
+}
+.loading-state::after {
+  content: 'LOADING...';
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--c-muted);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; }
+}
+
+/* btn-add-to-cart full width */
+.btn-add-to-cart {
+  width: 100%;
+  margin-top: 12px;
+  font-size: 11px;
+  padding: 9px 16px;
+  transition: background var(--transition), transform 0.1s;
+}
+.btn-add-to-cart:active { transform: scale(0.98); }
+.btn-add-to-cart:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

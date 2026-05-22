@@ -219,35 +219,40 @@
       <!-- Login Form -->
       <div id="tab-login" class="modal-body">
         <h2 id="modal-title" class="modal-title">WELCOME BACK</h2>
-        <div class="form-group">
-          <label class="form-label" for="login-email">EMAIL</label>
-          <input type="email" id="login-email" class="form-input" placeholder="your@email.com" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="login-password">PASSWORD</label>
-          <input type="password" id="login-password" class="form-input" placeholder="••••••••" />
-        </div>
-        <p class="form-error hidden" id="login-error"></p>
-        <button class="btn-primary btn-block" id="btn-login-submit">LOGIN</button>
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="login-username">USERNAME</label>
+            <input type="text" id="login-username" class="form-input" placeholder="your_username" autocomplete="username" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">PASSWORD</label>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+          <p class="form-error hidden" id="login-error"></p>
+          <button type="submit" class="btn-primary btn-block">LOGIN</button>
+        </form>
       </div>
 
       <!-- Register Form -->
       <div id="tab-register" class="modal-body hidden">
         <h2 class="modal-title">CREATE ACCOUNT</h2>
-        <div class="form-group">
-          <label class="form-label" for="reg-name">FULL NAME</label>
-          <input type="text" id="reg-name" class="form-input" placeholder="John Doe" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="reg-email">EMAIL</label>
-          <input type="email" id="reg-email" class="form-input" placeholder="your@email.com" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="reg-password">PASSWORD</label>
-          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" />
-        </div>
-        <p class="form-error hidden" id="reg-error"></p>
-        <button class="btn-primary btn-block" id="btn-register-submit">CREATE ACCOUNT</button>
+        <form id="register-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="register-username">USERNAME</label>
+            <input type="text" id="register-username" class="form-input" placeholder="your_username" autocomplete="username" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="register-email">EMAIL</label>
+            <input type="email" id="register-email" class="form-input" placeholder="your@email.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="register-password">PASSWORD</label>
+            <input type="password" id="register-password" class="form-input" placeholder="••••••••" autocomplete="new-password" required />
+            <p class="password-hint">At least 6 characters</p>
+          </div>
+          <p class="form-error hidden" id="reg-error"></p>
+          <button type="submit" class="btn-primary btn-block">CREATE ACCOUNT</button>
+        </form>
       </div>
     </div>
   </div>
@@ -268,10 +273,70 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/catalog.js"></script>
-  <script src="js/checkout.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    function updateAuthUI() {
+      const token   = localStorage.getItem('token');
+      const userRaw = localStorage.getItem('user');
+      const user    = userRaw ? JSON.parse(userRaw) : null;
+      const btnLogin    = document.getElementById('btn-login');
+      const btnRegister = document.getElementById('btn-register');
+      const navActions  = document.querySelector('.nav-actions');
+      if (token && user) {
+        if (btnLogin)    btnLogin.classList.add('hidden');
+        if (btnRegister) btnRegister.classList.add('hidden');
+        let chip = document.getElementById('nav-user-chip');
+        if (!chip) {
+          chip = document.createElement('div');
+          chip.id = 'nav-user-chip';
+          chip.className = 'nav-user-chip';
+          if (navActions) navActions.appendChild(chip);
+        }
+        chip.innerHTML = `<span class="chip-name">${user.username.toUpperCase()}</span><button class="btn-ghost chip-logout" onclick="AuthService.logout()">LOGOUT</button>`;
+      } else {
+        if (btnLogin)    btnLogin.classList.remove('hidden');
+        if (btnRegister) btnRegister.classList.remove('hidden');
+        const chip = document.getElementById('nav-user-chip');
+        if (chip) chip.remove();
+      }
+    }
+
+    function openModal(tab = 'login') {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      switchModalTab(tab);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function switchModalTab(tab) {
+      document.querySelectorAll('.modal-tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === tab)
+      );
+      document.getElementById('tab-login')?.classList.toggle('hidden', tab !== 'login');
+      document.getElementById('tab-register')?.classList.toggle('hidden', tab !== 'register');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-login')?.addEventListener('click', () => openModal('login'));
+      document.getElementById('btn-register')?.addEventListener('click', () => openModal('register'));
+      document.getElementById('btn-close-modal')?.addEventListener('click', closeModal);
+      document.getElementById('auth-modal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+      document.querySelectorAll('.modal-tab').forEach(tab => tab.addEventListener('click', () => switchModalTab(tab.dataset.tab)));
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    });
+  </script>
 </body>
 </html>
