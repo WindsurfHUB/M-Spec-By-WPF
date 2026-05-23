@@ -46,6 +46,7 @@ function renderCart(cartState) {
       <div class="cart-item-info">
         <p class="cart-item-name">${item.name}</p>
         <p class="cart-item-price">฿${(item.price * item.quantity).toLocaleString('th-TH')}</p>
+        ${item.carDetails ? `<p class="cart-item-car-details" style="font-size:11px;color:#888;margin-top:4px;">🚗 ${item.carDetails}</p>` : ''}
         <div class="cart-item-qty">
           <button class="qty-btn" data-action="minus" data-id="${item.id}" aria-label="ลด">−</button>
           <span class="qty-num">${item.quantity}</span>
@@ -79,7 +80,9 @@ function renderSlots(slots) {
     const max       = slot.max_capacity || 3;
     const available = max - filled;
 
-    const date = new Date(slot.slot_datetime || slot.date);
+    const date = slot.slot_date && slot.slot_time
+      ? new Date(`${slot.slot_date}T${slot.slot_time}`)
+      : new Date(slot.slot_datetime || slot.date);
     const dateStr = date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
     const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
@@ -224,8 +227,14 @@ function initCartSidebarEvents() {
   document.getElementById('btn-close-cart')?.addEventListener('click', closeCart);
   document.getElementById('cart-overlay')?.addEventListener('click', closeCart);
 
-  // Checkout
-  document.getElementById('btn-checkout')?.addEventListener('click', handleCheckout);
+  // Checkout (Calls handleCheckout() from checkout.js)
+  document.getElementById('btn-checkout')?.addEventListener('click', () => {
+    if (typeof handleCheckout === 'function') {
+      handleCheckout();
+    } else {
+      console.error('handleCheckout is not defined in checkout.js');
+    }
+  });
 }
 
 function openCart() {
@@ -269,7 +278,7 @@ function initPartsEvents() {
 }
 
 // =============================================
-// EVENT DELEGATION — Slots Container (Session 3)
+// EVENT DELEGATION — Slots Container with carDetails input
 // =============================================
 function initSlotsEvents() {
   const container = document.getElementById('slots-container');
@@ -285,12 +294,22 @@ function initSlotsEvents() {
       return;
     }
 
+    // 🌟 Interactive prompt to capture car details
+    const carDetails = prompt('กรุณากรอกข้อมูลรถยนต์ของคุณสำหรับการจูน Dyno (เช่น ยี่ห้อ รุ่นรถ และเลขทะเบียน):\nตัวอย่าง: Toyota Yaris (กข-1234 เชียงใหม่)');
+    if (carDetails === null) {
+      // User clicked "Cancel", abort booking
+      return;
+    }
+
+    const cleanCarDetails = carDetails.trim() || 'ไม่ได้ระบุข้อมูลรถ';
+
     CartService.addToCart({
-      id:       Number(bookBtn.dataset.slotId),
-      name:     'Dyno Session — ' + bookBtn.dataset.slotName,
-      price:    1500,
-      quantity: 1,
-      type:     'booking'
+      id:         Number(bookBtn.dataset.slotId),
+      name:       'Dyno Session — ' + bookBtn.dataset.slotName,
+      price:      1500,
+      quantity:   1,
+      type:       'booking',
+      carDetails: cleanCarDetails
     });
 
     bookBtn.textContent = 'BOOKED ✓';
@@ -332,60 +351,6 @@ function initFilterEvents() {
   }
   if (catFilter)   catFilter.addEventListener('change', applyFilters);
   if (priceFilter) priceFilter.addEventListener('change', applyFilters);
-}
-
-// =============================================
-// CHECKOUT HANDLER
-// =============================================
-async function handleCheckout() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    closeCart();
-    openModal('login');
-    return;
-  }
-
-  const items = CartService.getCartItems();
-  if (items.length === 0) return;
-
-  const btnCheckout = document.getElementById('btn-checkout');
-  if (btnCheckout) { btnCheckout.textContent = 'PLACING ORDER...'; btnCheckout.disabled = true; }
-
-  const parts    = items.filter(i => i.type !== 'booking');
-  const bookings = items.filter(i => i.type === 'booking');
-
-  try {
-    if (parts.length > 0) {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ items: parts.map(p => ({ partId: p.id, quantity: p.quantity })) })
-      });
-      if (res.status === 401) { localStorage.removeItem('token'); closeCart(); openModal('login'); return; }
-      if (!res.ok) { const err = await res.json(); alert(err.message || 'Order failed.'); return; }
-    }
-
-    for (const booking of bookings) {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ slotId: booking.id, carDetails: '' })
-      });
-      if (res.status === 409) { alert(`Slot "${booking.name}" เต็มแล้ว กรุณาเลือกสล็อตอื่น`); return; }
-      if (!res.ok) { const err = await res.json(); alert(err.message || 'Booking failed.'); return; }
-    }
-
-    CartService.clearCart();
-    closeCart();
-    showToast('Order placed successfully! 🎉', 'success');
-    if (typeof fetchOrders === 'function') fetchOrders();
-
-  } catch (err) {
-    console.error('Checkout error:', err);
-    alert('Network error. Please try again.');
-  } finally {
-    if (btnCheckout) { btnCheckout.textContent = 'PROCEED TO CHECKOUT'; btnCheckout.disabled = false; }
-  }
 }
 
 // =============================================
