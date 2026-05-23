@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,8 +8,11 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;600;700&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -26,7 +30,11 @@
 
       <div class="nav-actions">
         <button class="btn-icon" id="btn-cart" aria-label="Cart">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
           <span class="cart-badge" id="cart-count">0</span>
         </button>
         <button class="btn-ghost" id="btn-login">LOGIN</button>
@@ -51,9 +59,16 @@
         <a href="#catalog" class="btn-outline btn-lg">BROWSE PARTS</a>
       </div>
     </div>
-    <div class="hero-scroll-hint" aria-hidden="true">
-      <span>SCROLL</span>
-      <div class="scroll-line"></div>
+    <!-- แทน hero-scroll-hint เดิม -->
+    <div class="hero-recommended">
+      <p class="rec-label">RECOMMENDED</p>
+      <div class="rec-track">
+        <div class="rec-item">ITEM</div>
+        <div class="rec-item">ITEM</div>
+        <div class="rec-item">ITEM</div>
+        <div class="rec-item">ITEM</div>
+        <div class="rec-item">ITEM</div>
+      </div>
     </div>
   </section>
 
@@ -90,7 +105,11 @@
     <!-- Filter Bar -->
     <div class="filter-bar">
       <div class="filter-search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
         <input type="text" id="search-input" placeholder="SEARCH PARTS..." class="input-search" />
       </div>
       <div class="filter-controls">
@@ -131,7 +150,12 @@
       <div class="booking-info">
         <div class="info-card">
           <span class="info-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
           </span>
           <div>
             <h4>PICK A DATE</h4>
@@ -140,7 +164,10 @@
         </div>
         <div class="info-card">
           <span class="info-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
           </span>
           <div>
             <h4>SESSION DURATION</h4>
@@ -149,7 +176,9 @@
         </div>
         <div class="info-card">
           <span class="info-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
           </span>
           <div>
             <h4>LIVE DATA</h4>
@@ -175,7 +204,10 @@
     <div class="cart-header">
       <h3>YOUR CART</h3>
       <button class="btn-icon" id="btn-close-cart" aria-label="Close cart">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
     <div id="cart-items" class="cart-items">
@@ -208,7 +240,10 @@
   <div id="auth-modal" class="modal-overlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button class="modal-close" id="btn-close-modal" aria-label="Close">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
 
       <div class="modal-tabs">
@@ -256,7 +291,7 @@
   <footer id="footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <span class="logo-m">M</span><span class="logo-spec">-SPEC</span>
+        <div><span class="logo-m">M</span><span class="logo-spec">-SPEC</span></div>
         <p>Dyno Tuning & Rare Parts<br />Chiang Mai, Thailand</p>
       </div>
       <div class="footer-links">
@@ -270,8 +305,9 @@
 
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/catalog.js"></script>
   <script src="js/checkout.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/catalog.js"></script>
 </body>
+
 </html>
