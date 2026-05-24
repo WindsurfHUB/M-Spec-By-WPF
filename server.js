@@ -17,7 +17,7 @@ app.use('/api/parts', require('./src/routes/partsRoutes'));
 app.use('/api/slots', require('./src/routes/slotsRoutes'));
 app.use('/api/orders', require('./src/routes/orderRoutes'));
 app.use('/api/bookings',require('./src/routes/bookingRoutes'));
-// app.use('/api/admin', require('./src/routes/adminRoutes'));
+app.use('/api/admin', require('./src/routes/adminRoutes'));
 
 // ─── GLOBAL ERROR HANDLER ────────────────────────────────────────────────────
 // Catches any error passed via next(err) — hides stack trace from client
