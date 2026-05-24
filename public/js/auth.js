@@ -138,7 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── MODAL CONTROLLERS ───────────────────────────────────────────────────
     const openModal = (tabName) => {
         if (modal) {
-            modal.removeAttribute('aria-hidden');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
             
             // สลับ Tab ให้สอดคล้องกัน
             const tabToActivate = document.querySelector(`.modal-tab[data-tab="${tabName}"]`);
@@ -160,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeModal = () => {
         if (modal) {
+            modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
             clearErrors();
         }
     };
@@ -323,6 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ส่งออกฟังก์ชันโมดอลระดับ Global สำหรับการใช้งานในสคริปต์อื่น (เช่น main, checkout)
+    window.openModal = openModal;
+    window.closeModal = closeModal;
 });
 
 // ส่งออก AuthService สำหรับการใช้งานของหน้าเว็บหรือไฟล์ JS ตัวอื่น (เช่น cart, checkout)

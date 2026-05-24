@@ -13,8 +13,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── ROUTES (wire in as you build them) ──────────────────────────────────────
 app.use('/api/auth', require('./src/routes/authRoutes'));
-// app.use('/api/parts', require('./src/routes/catalogRoutes'));
-// app.use('/api/slots', require('./src/routes/catalogRoutes'));
+app.use('/api/parts', require('./src/routes/partsRoutes'));
+app.use('/api/slots', require('./src/routes/slotsRoutes'));
 // app.use('/api/orders', require('./src/routes/orderRoutes'));
 // app.use('/api/bookings',require('./src/routes/bookingRoutes'));
 // app.use('/api/admin', require('./src/routes/adminRoutes'));
