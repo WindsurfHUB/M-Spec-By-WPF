@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M-SPEC | Admin — Part Images</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black: #0a0a0a; --dark: #1a1a1a; --panel: #222;
+      --border: #2e2e2e; --muted: #888; --white: #f0ede8;
+      --red: #c0392b; --green: #27ae60;
+      --font-d: 'Bebas Neue', sans-serif;
+      --font-m: 'Barlow Condensed', sans-serif;
+      --font-b: 'Barlow', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--black); color: var(--white); font-family: var(--font-b); font-size: 14px; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; font-family: inherit; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo { font-family: var(--font-d); font-size: 24px; }
+    .logo span { color: var(--red); }
+    .header-badge {
+      font-family: var(--font-m);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+    .header-nav a {
+      font-family: var(--font-m);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: color .2s, border-color .2s;
+    }
+    .header-nav a:hover { color: var(--white); border-color: var(--muted); }
+
+    /* ── AUTH GATE ── */
+    #auth-gate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      gap: 16px;
+      padding: 20px;
+    }
+    #auth-gate h2 { font-family: var(--font-d); font-size: 36px; letter-spacing: .04em; }
+    #auth-gate p  { color: var(--muted); font-size: 13px; }
+    .key-form { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .key-input {
+      background: var(--dark); border: 1px solid var(--border); color: var(--white);
+      font-family: var(--font-m); font-size: 14px; letter-spacing: .08em;
+      padding: 10px 16px; border-radius: 2px; outline: none; width: 260px;
+      transition: border-color .2s;
+    }
+    .key-input:focus { border-color: var(--red); }
+    .btn-red {
+      background: var(--red); color: var(--white);
+      font-family: var(--font-m); font-size: 12px; font-weight: 600; letter-spacing: .12em;
+      padding: 10px 24px; border-radius: 2px; transition: background .2s;
+    }
+    .btn-red:hover { background: #e84118; }
+    .auth-error { color: var(--red); font-family: var(--font-m); font-size: 11px; letter-spacing: .08em; }
+
+    /* ── MAIN ── */
+    #main { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+
+    .page-title { font-family: var(--font-d); font-size: 48px; letter-spacing: .04em; margin-bottom: 8px; }
+    .page-sub   { color: var(--muted); font-size: 13px; margin-bottom: 36px; }
+
+    /* ── PARTS GRID ── */
+    .parts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .part-admin-card {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .part-admin-card:hover { border-color: #444; }
+
+    /* Image area */
+    .part-img-area {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: var(--panel);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .part-img-area img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .part-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--muted);
+    }
+    .part-img-placeholder svg { opacity: .4; }
+    .part-img-placeholder span {
+      font-family: var(--font-m);
+      font-size: 11px;
+      letter-spacing: .1em;
+      opacity: .5;
+    }
+
+    /* Upload overlay on hover */
+    .part-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .part-img-area:hover .part-img-overlay { opacity: 1; }
+    .overlay-label {
+      font-family: var(--font-m);
+      font-size: 12px;
+      letter-spacing: .12em;
+      color: var(--white);
+    }
+    .overlay-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,.5);
+      font-family: var(--font-m);
+      letter-spacing: .06em;
+    }
+
+    /* Hidden file input */
+    .file-input { display: none; }
+
+    /* Card body */
+    .part-admin-body { padding: 14px 16px; }
+    .part-admin-cat {
+      font-family: var(--font-m);
+      font-size: 10px;
+      letter-spacing: .15em;
+      color: var(--red);
+      margin-bottom: 4px;
+    }
+    .part-admin-name {
+      font-family: var(--font-m);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 2px;
+    }
+    .part-admin-price {
+      font-family: var(--font-d);
+      font-size: 20px;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .part-admin-actions { display: flex; gap: 8px; }
+
+    .btn-upload {
+      flex: 1;
+      background: var(--red);
+      color: var(--white);
+      font-family: var(--font-m);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      padding: 8px 12px;
+      border-radius: 2px;
+      transition: background .2s;
+      text-align: center;
+    }
+    .btn-upload:hover { background: #e84118; }
+
+    .btn-remove-img {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-family: var(--font-m);
+      font-size: 11px;
+      letter-spacing: .08em;
+      padding: 8px 12px;
+      border-radius: 2px;
+      transition: color .2s, border-color .2s;
+    }
+    .btn-remove-img:hover { color: var(--red); border-color: var(--red); }
+
+    /* Upload progress overlay */
+    .card-uploading {
+      position: relative;
+      pointer-events: none;
+    }
+    .card-uploading::after {
+      content: 'UPLOADING...';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-m);
+      font-size: 12px;
+      letter-spacing: .15em;
+      color: var(--white);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 22px;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-m);
+      font-size: 13px;
+      letter-spacing: .06em;
+      color: var(--white);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-ok  { border-color: rgba(39,174,96,.4); }
+    .toast-err { border-color: rgba(192,57,43,.4); }
+
+    /* ── LOADING ── */
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+      font-family: var(--font-m);
+      font-size: 11px;
+      letter-spacing: .2em;
+      color: var(--muted);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @media (max-width: 600px) {
+      #main { padding: 20px 16px; }
+      header { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="logo"><span>M</span>-SPEC</div>
+    <div class="header-badge">ADMIN PANEL</div>
+  </div>
+  <nav class="header-nav" style="display:flex;gap:8px">
+    <a href="index.html">← BACK TO SITE</a>
+    <button class="btn-red" id="btn-logout" style="display:none;font-size:11px;padding:6px 14px">LOGOUT</button>
+  </nav>
+</header>
+
+<!-- ── AUTH GATE ── -->
+<div id="auth-gate">
+  <h2>ADMIN ACCESS</h2>
+  <p>ใส่ Admin Key เพื่อเข้าจัดการรูปสินค้า</p>
+  <div class="key-form">
+    <input type="password" id="admin-key-input" class="key-input" placeholder="Admin Key..." autocomplete="off"/>
+    <button class="btn-red" id="btn-enter">ENTER</button>
+  </div>
+  <p class="auth-error hidden" id="auth-err">Admin key ไม่ถูกต้อง</p>
+</div>
+
+<!-- ── MAIN PANEL ── -->
+<div id="main">
+  <h1 class="page-title">PART IMAGES</h1>
+  <p class="page-sub">คลิกที่รูปหรือกปุ่ม UPLOAD IMAGE เพื่ออัพโหลดรูปสินค้า · JPG, PNG, WEBP · สูงสุด 8MB</p>
+
+  <div id="loading">LOADING PARTS...</div>
+  <div class="parts-grid" id="parts-grid" style="display:none"></div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── STATE ───────────────────────────────────────────────────────────────
+  let _adminKey = '';
+
+  // ─── TOAST ───────────────────────────────────────────────────────────────
+  function toast(msg, ok = true) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${ok ? 'toast-ok' : 'toast-err'} show`;
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // ─── AUTH GATE ────────────────────────────────────────────────────────────
+  async function tryLogin() {
+    const key = document.getElementById('admin-key-input').value.trim();
+    if (!key) return;
+
+    // ทดสอบ key โดยเรียก admin API
+    const res = await fetch('/api/admin/parts', {
+      headers: { 'x-admin-key': key }
+    });
+
+    if (!res.ok) {
+      document.getElementById('auth-err').classList.remove('hidden');
+      return;
+    }
+
+    _adminKey = key;
+    sessionStorage.setItem('mspec_admin_key', key);
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('auth-err').classList.add('hidden');
+
+    const data = await res.json();
+    renderParts(data.parts || []);
+  }
+
+  document.getElementById('btn-enter').addEventListener('click', tryLogin);
+  document.getElementById('admin-key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryLogin();
+  });
+
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    _adminKey = '';
+    sessionStorage.removeItem('mspec_admin_key');
+    location.reload();
+  });
+
+  // ─── RENDER PARTS ─────────────────────────────────────────────────────────
+  function renderParts(parts) {
+    const loading = document.getElementById('loading');
+    const grid    = document.getElementById('parts-grid');
+    loading.style.display = 'none';
+    grid.style.display    = 'grid';
+
+    if (!parts.length) {
+      grid.innerHTML = '<p style="color:#888;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.1em">ไม่พบสินค้า</p>';
+      return;
+    }
+
+    grid.innerHTML = parts.map(p => `
+      <div class="part-admin-card" id="card-${p.id}">
+
+        <!-- รูป — คลิกเพื่อเลือกไฟล์ -->
+        <div class="part-img-area" onclick="document.getElementById('file-${p.id}').click()">
+          ${p.image_url
+            ? `<img src="${p.image_url}?t=${Date.now()}" alt="${p.name}" id="img-${p.id}"/>`
+            : `<div class="part-img-placeholder" id="img-${p.id}">
+                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                   <rect x="3" y="3" width="18" height="18" rx="2"/>
+                   <circle cx="8.5" cy="8.5" r="1.5"/>
+                   <polyline points="21 15 16 10 5 21"/>
+                 </svg>
+                 <span>NO IMAGE</span>
+               </div>`
+          }
+          <div class="part-img-overlay">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span class="overlay-label">CLICK TO UPLOAD</span>
+            <span class="overlay-sub">JPG · PNG · WEBP · max 8MB</span>
+          </div>
+          <input type="file" class="file-input" id="file-${p.id}"
+            accept=".jpg,.jpeg,.png,.webp,.gif"
+            onchange="uploadImage(${p.id}, this)"/>
+        </div>
+
+        <!-- ข้อมูล -->
+        <div class="part-admin-body">
+          <p class="part-admin-cat">${p.category || 'PART'}</p>
+          <p class="part-admin-name">${p.name}</p>
+          <p class="part-admin-price">฿${Number(p.price).toLocaleString('th-TH')}</p>
+          <div class="part-admin-actions">
+            <label class="btn-upload" for="file-${p.id}" onclick="event.stopPropagation()">
+              📁 UPLOAD IMAGE
+            </label>
+            ${p.image_url
+              ? `<button class="btn-remove-img" onclick="removeImage(${p.id})">✕ REMOVE</button>`
+              : ''
+            }
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── UPLOAD IMAGE ─────────────────────────────────────────────────────────
+  async function uploadImage(partId, input) {
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+    if (file.size > 8 * 1024 * 1024) {
+      toast('ไฟล์ใหญ่เกิน 8MB', false);
+      return;
+    }
+
+    const card = document.getElementById(`card-${partId}`);
+    card.classList.add('card-uploading');
+
+    const form = new FormData();
+    form.append('image', file);
+
+    try {
+      const res  = await fetch(`/api/admin/parts/${partId}/image`, {
+        method:  'POST',
+        headers: { 'x-admin-key': _adminKey },
+        body:    form
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+      // อัพเดตรูปใน DOM ทันที ไม่ต้อง reload
+      const imgArea = card.querySelector('.part-img-area');
+      let imgEl = document.getElementById(`img-${partId}`);
+
+      if (imgEl.tagName === 'DIV') {
+        // เปลี่ยน placeholder → img
+        imgEl.outerHTML = `<img src="${data.image_url}?t=${Date.now()}" alt="" id="img-${partId}" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+      } else {
+        imgEl.src = `${data.image_url}?t=${Date.now()}`;
+      }
+
+      // เพิ่มปุ่ม REMOVE ถ้ายังไม่มี
+      const actions = card.querySelector('.part-admin-actions');
+      if (!actions.querySelector('.btn-remove-img')) {
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn-remove-img';
+        removeBtn.textContent = '✕ REMOVE';
+        removeBtn.onclick = () => removeImage(partId);
+        actions.appendChild(removeBtn);
+      }
+
+      toast(`อัพโหลดรูปสำเร็จ ✓`);
+    } catch (err) {
+      toast(err.message || 'อัพโหลดล้มเหลว', false);
+    } finally {
+      card.classList.remove('card-uploading');
+      input.value = ''; // reset input
+    }
+  }
+
+  // ─── REMOVE IMAGE ─────────────────────────────────────────────────────────
+  async function removeImage(partId) {
+    if (!confirm('ลบรูปนี้ออก?')) return;
+
+    try {
+      const res = await fetch(`/api/admin/parts/${partId}/image`, {
+        method:  'DELETE',
+        headers: { 'x-admin-key': _adminKey }
+      });
+      if (!res.ok) throw new Error('Delete failed');
+
+      const card  = document.getElementById(`card-${partId}`);
+      const imgEl = document.getElementById(`img-${partId}`);
+
+      // เปลี่ยน img → placeholder
+      imgEl.outerHTML = `
+        <div class="part-img-placeholder" id="img-${partId}">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>NO IMAGE</span>
+        </div>`;
+
+      card.querySelector('.btn-remove-img')?.remove();
+      toast('ลบรูปเรียบร้อย');
+    } catch {
+      toast('ลบรูปล้มเหลว', false);
+    }
+  }
+
+  // ─── AUTO-LOGIN จาก session ────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', async () => {
+    const saved = sessionStorage.getItem('mspec_admin_key');
+    if (saved) {
+      document.getElementById('admin-key-input').value = saved;
+      await tryLogin();
+    }
+  });
+</script>
+
+</body>
+</html>
