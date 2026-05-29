@@ -1,0 +1,204 @@
+/* =============================================
+   booking-page.js — Dyno Booking Page
+   booking.html เท่านั้น
+   - โหลด slots grid จาก API
+   - เปิด popup modal เมื่อกด BOOK SLOT
+   - confirm → addToCart → เปิด cart sidebar
+   ============================================= */
+
+// =============================================
+// STATE
+// =============================================
+let _selectedSlot = null; // { id, date, time, avail }
+
+// =============================================
+// OPEN SLOT MODAL — เรียกเมื่อกด BOOK SLOT
+// =============================================
+function openSlotModal(slotData) {
+  _selectedSlot = slotData;
+
+  // ใส่ข้อมูลลง summary panel
+  document.getElementById('scp-date').textContent  = slotData.date;
+  document.getElementById('scp-time').textContent  = slotData.time;
+  document.getElementById('scp-avail').textContent = slotData.avail;
+
+  // clear form
+  const carInput = document.getElementById('slot-car-details');
+  if (carInput) carInput.value = '';
+  hideSlotError();
+
+  // เปิด modal
+  const modal = document.getElementById('slot-booking-modal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    // focus input
+    setTimeout(() => carInput?.focus(), 120);
+  }
+}
+
+function closeSlotModal() {
+  const modal = document.getElementById('slot-booking-modal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  _selectedSlot = null;
+}
+
+function showSlotError(msg) {
+  const el = document.getElementById('slot-modal-error');
+  if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+}
+
+function hideSlotError() {
+  const el = document.getElementById('slot-modal-error');
+  if (el) el.classList.add('hidden');
+}
+
+// =============================================
+// CONFIRM BOOKING → ADD TO CART
+// =============================================
+function confirmSlotBooking() {
+  if (!_selectedSlot) return;
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    closeSlotModal();
+    if (typeof openModal === 'function') openModal('login');
+    return;
+  }
+
+  const carInput = document.getElementById('slot-car-details');
+  const carDetails = carInput?.value?.trim();
+
+  if (!carDetails) {
+    showSlotError('กรุณากรอกข้อมูลรถยนต์ก่อนยืนยัน');
+    carInput?.focus();
+    return;
+  }
+
+  // Add to cart
+  if (typeof CartService !== 'undefined') {
+    CartService.addToCart({
+      id:         _selectedSlot.id,
+      name:       `Dyno Session — ${_selectedSlot.date} ${_selectedSlot.time}`,
+      price:      1500,
+      quantity:   1,
+      type:       'booking',
+      carDetails: carDetails
+    });
+  }
+
+  // อัพเดต slot card ให้ feedback
+  const slotCard = document.querySelector(`.slot-card[data-slot-id="${_selectedSlot.id}"]`);
+  const bookBtn  = slotCard?.querySelector('.btn-book-slot');
+  if (bookBtn) {
+    bookBtn.textContent = 'ADDED ✓';
+    bookBtn.disabled = true;
+    bookBtn.style.background = '#27ae60';
+  }
+
+  if (typeof showToast === 'function') {
+    showToast(`เพิ่ม Dyno Session ${_selectedSlot.date} ลงตะกร้าแล้ว`);
+  }
+
+  closeSlotModal();
+
+  // เปิด cart sidebar
+  setTimeout(() => {
+    if (typeof openCart === 'function') openCart();
+  }, 300);
+}
+
+// =============================================
+// SLOTS CONTAINER — Event delegation
+// รับ click จาก BOOK SLOT button ทุกปุ่ม
+// =============================================
+function initSlotsEvents() {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-book-slot');
+    if (!btn) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      if (typeof openModal === 'function') openModal('login');
+      return;
+    }
+
+    openSlotModal({
+      id:    btn.dataset.slotId,
+      date:  btn.dataset.date,
+      time:  btn.dataset.time,
+      avail: btn.dataset.avail
+    });
+  });
+}
+
+// =============================================
+// MODAL EVENTS
+// =============================================
+function initSlotModalEvents() {
+  // ปิดด้วยปุ่ม X
+  document.getElementById('btn-close-slot-modal')?.addEventListener('click', closeSlotModal);
+
+  // ปิดเมื่อคลิก overlay พื้นหลัง
+  document.getElementById('slot-booking-modal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('slot-booking-modal')) closeSlotModal();
+  });
+
+  // ปุ่ม ADD TO CART
+  document.getElementById('btn-confirm-slot')?.addEventListener('click', confirmSlotBooking);
+
+  // Enter ใน input ก็ confirm ได้
+  document.getElementById('slot-car-details')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmSlotBooking();
+  });
+
+  // ESC ปิด modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('slot-booking-modal');
+      if (modal?.classList.contains('open')) closeSlotModal();
+    }
+  });
+}
+
+// =============================================
+// FETCH SLOTS — GET /api/slots
+// =============================================
+async function loadSlots() {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+  container.innerHTML = `<div class="loading-state"></div>`;
+
+  try {
+    const res  = await fetch('/api/slots');
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+
+    // renderSlots มาจาก main.js
+    if (typeof renderSlots === 'function') {
+      renderSlots(data.slots || data);
+    }
+  } catch {
+    container.innerHTML = `<p class="slots-empty">โหลดสล็อตไม่สำเร็จ กรุณา refresh หน้า</p>`;
+  }
+}
+
+// =============================================
+// INIT — เรียกหลัง main.js DOMContentLoaded เสร็จ
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+  // โหลด slots
+  loadSlots();
+
+  // ผูก events
+  initSlotsEvents();
+  initSlotModalEvents();
+});
