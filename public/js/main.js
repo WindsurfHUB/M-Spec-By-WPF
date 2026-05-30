@@ -174,7 +174,25 @@ function renderSlots(slots) {
     return;
   }
 
-  container.innerHTML = slots.map(slot => {
+  // Filter: tomorrow (today+1) through today+7
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const endDay = new Date(today);
+  endDay.setDate(today.getDate() + 7);
+
+  const filtered = slots.filter(slot => {
+    const d = new Date(slot.slot_date);
+    return d >= tomorrow && d <= endDay;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตในช่วง 7 วันข้างหน้า</p>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(slot => {
     const isFull    = slot.current_bookings >= slot.max_capacity;
     const filled    = slot.current_bookings || 0;
     const max       = slot.max_capacity || 3;
@@ -211,7 +229,6 @@ function renderSlots(slots) {
       </div>`;
   }).join('');
 }
-
 // =============================================
 // DEBOUNCE
 // =============================================
