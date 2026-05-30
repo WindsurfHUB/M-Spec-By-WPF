@@ -127,14 +127,14 @@ function _seedParts(db) {
   `);
 
   const parts = [
-    ['Garrett GTX3071R Turbo',    'Ball-bearing turbocharger, up to 500whp',   'Turbo',      45000, 2,  null],
-    ['HKS SSQV Blow-off Valve',   'Trademark whoosh sound, direct bolt-on',    'Turbo',       3200, 5,  null],
-    ['AEM 340lph Fuel Pump',      'High-flow in-tank pump for boosted builds', 'Fuel System', 2800, 3,  null],
-    ['Link G4X ECU',              'Standalone engine management system',        'ECU',        28000, 1,  null],
-    ['Cusco Rear Strut Bar',      'Bolt-on rear chassis brace',                'Suspension',  4500, 4,  null],
-    ['Project Mu HC800 Brake Pads','High-carbon compound, track-spec',         'Brakes',      3800, 6,  null],
-    ['Mishimoto Intercooler Kit', 'Full-face intercooler + pipe kit',           'Turbo',      18000, 2,  null],
-    ['Tomei Expreme Ti Exhaust',  'Titanium catback, -4kg vs stock',            'Exhaust',    35000, 1,  null],
+    ['Garrett GTX3071R Turbo',     'Ball-bearing turbocharger, up to 500whp',   'Turbo',      45000, 2,  '/images/GTX3071R_THUMBNAIL_0.jpg'],
+    ['HKS SSQV Blow-off Valve',    'Trademark whoosh sound, direct bolt-on',    'Turbo',       3200, 5,  '/images/HKS_SSQV_Blow-off_Valve.jpg'],
+    ['AEM 340lph Fuel Pump',       'High-flow in-tank pump for boosted builds', 'Fuel System', 2800, 3,  '/images/AEM_340lph_Fuel_Pump.jpg'],
+    ['Link G4X ECU',               'Standalone engine management system',        'ECU',        28000, 1,  '/images/Link_G4X_ECU.jpg'],
+    ['Cusco Rear Strut Bar',       'Bolt-on rear chassis brace',                'Suspension',  4500, 4,  '/images/Cusco_Rear_Strut_Bar.jpg'],
+    ['Project Mu HC800 Brake Pads','High-carbon compound, track-spec',          'Brakes',      3800, 6,  '/images/Project_Mu_HC800_Brake_Pads.jpg'],
+    ['Mishimoto Intercooler Kit',  'Full-face intercooler + pipe kit',           'Turbo',      18000, 2,  '/images/Mishimoto_Intercooler_Kit.jpg'],
+    ['Tomei Expreme Ti Exhaust',   'Titanium catback, -4kg vs stock',            'Exhaust',    35000, 1,  '/images/Tomei_Expreme_Ti_Exhaust.jpg'],
   ];
 
   const insertMany = db.transaction((rows) => {
