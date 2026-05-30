@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-SPEC | Dyno Booking</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-m">M</span><span class="logo-spec">-SPEC</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html#catalog" class="nav-link">PARTS</a></li>
+        <li><a href="booking.html" class="nav-link nav-link-active">DYNO BOOKING</a></li>
+        <li><a href="orders.html" class="nav-link">MY ORDERS</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon" id="btn-cart" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          <span class="cart-badge" id="cart-count">0</span>
+        </button>
+        <button class="btn-ghost" id="btn-login">LOGIN</button>
+        <button class="btn-primary" id="btn-register">REGISTER</button>
+      </div>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== PAGE HERO ===== -->
+  <div class="page-hero">
+    <div class="page-hero-bg-text" aria-hidden="true">DYNO</div>
+    <div class="page-hero-inner">
+      <p class="hero-eyebrow">PERFORMANCE TESTING</p>
+      <h1 class="page-hero-title">DYNO<br /><em>BOOKING</em></h1>
+      <p class="hero-sub">เลือกสล็อต · จองคิวออนไลน์ · มาพร้อมรถและความฝัน</p>
+    </div>
+  </div>
+
+  <!-- ===== BOOKING MAIN ===== -->
+  <section class="section booking-page-section">
+    <div class="booking-layout">
+
+      <!-- Left: Info cards -->
+      <div class="booking-info">
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </span>
+          <div>
+            <h4>PICK A DATE</h4>
+            <p>Choose from available slots. Max 3 cars per session — guaranteed bay time.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </span>
+          <div>
+            <h4>SESSION DURATION</h4>
+            <p>Full dyno pull session — 2–4 hours including setup and data logging.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </span>
+          <div>
+            <h4>LIVE DATA</h4>
+            <p>Real-time HP / TQ graphs. Full ECU log report delivered same day.</p>
+          </div>
+        </div>
+        <div class="info-card info-card-price">
+          <span class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </span>
+          <div>
+            <h4>SESSION PRICE</h4>
+            <p class="info-price">฿1,500 <span>/ session</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Slots Grid -->
+      <div class="slots-wrapper">
+        <div class="slots-top-bar">
+          <h3 class="slots-section-title">AVAILABLE SLOTS</h3>
+          <p class="slots-section-sub">เลือกสล็อตที่ต้องการแล้วกด BOOK</p>
+        </div>
+        <div id="slots-container" class="slots-grid">
+          <div class="loading-state"><span class="loading-dots"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOOK SLOT POPUP ===== -->
+  <div id="slot-booking-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal slot-modal" role="dialog" aria-modal="true" aria-labelledby="slot-modal-title">
+      <button class="modal-close" id="btn-close-slot-modal" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <p class="section-eyebrow" style="margin-bottom:8px">DYNO SESSION</p>
+      <h2 id="slot-modal-title" class="modal-title">CONFIRM BOOKING</h2>
+
+      <!-- Slot summary panel -->
+      <div class="slot-confirm-panel">
+        <div class="scp-row">
+          <span class="scp-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            DATE
+          </span>
+          <span class="scp-value" id="scp-date">—</span>
+        </div>
+        <div class="scp-row">
+          <span class="scp-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            TIME
+          </span>
+          <span class="scp-value" id="scp-time">—</span>
+        </div>
+        <div class="scp-row">
+          <span class="scp-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+              <path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            SLOTS LEFT
+          </span>
+          <span class="scp-value" id="scp-avail">—</span>
+        </div>
+        <div class="scp-row scp-price-row">
+          <span class="scp-label">PRICE</span>
+          <span class="scp-value scp-price">฿1,500</span>
+        </div>
+      </div>
+
+      <!-- Car details form -->
+      <div class="form-group" style="margin-top:24px">
+        <label class="form-label" for="slot-car-details">ข้อมูลรถยนต์ของคุณ</label>
+        <input
+          type="text"
+          id="slot-car-details"
+          class="form-input"
+          placeholder="เช่น Toyota GR Yaris (กข-1234 เชียงใหม่)"
+          autocomplete="off"
+        />
+        <p class="password-hint" style="margin-top:6px">ระบุยี่ห้อ รุ่น และเลขทะเบียน</p>
+      </div>
+
+      <p class="form-error hidden" id="slot-modal-error"></p>
+
+      <button class="btn-primary btn-block" id="btn-confirm-slot" style="margin-top:20px;padding:14px">
+        ADD TO CART
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== CART SIDEBAR ===== -->
+  <aside id="cart-sidebar" class="cart-sidebar" aria-hidden="true">
+    <div class="cart-header">
+      <h3>YOUR CART</h3>
+      <button class="btn-icon" id="btn-close-cart" aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div id="cart-items" class="cart-items">
+      <p class="cart-empty-msg">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>TOTAL</span>
+        <span id="cart-total">฿0</span>
+      </div>
+      <button class="btn-primary btn-block" id="btn-checkout">PROCEED TO CHECKOUT</button>
+    </div>
+  </aside>
+  <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div id="auth-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="btn-close-modal" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="login">LOGIN</button>
+        <button class="modal-tab" data-tab="register">REGISTER</button>
+      </div>
+      <div id="tab-login" class="modal-body">
+        <h2 id="modal-title" class="modal-title">WELCOME BACK</h2>
+        <div class="form-group">
+          <label class="form-label" for="login-email">EMAIL</label>
+          <input type="email" id="login-email" class="form-input" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">PASSWORD</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" />
+        </div>
+        <p class="form-error hidden" id="login-error"></p>
+        <button class="btn-primary btn-block" id="btn-login-submit">LOGIN</button>
+      </div>
+      <div id="tab-register" class="modal-body hidden">
+        <h2 class="modal-title">CREATE ACCOUNT</h2>
+        <div class="form-group">
+          <label class="form-label" for="reg-name">FULL NAME</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">EMAIL</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">PASSWORD</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" />
+        </div>
+        <p class="form-error hidden" id="reg-error"></p>
+        <button class="btn-primary btn-block" id="btn-register-submit">CREATE ACCOUNT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div><span class="logo-m">M</span><span class="logo-spec">-SPEC</span></div>
+        <p>Dyno Tuning & Rare Parts<br />Chiang Mai, Thailand</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#catalog">Parts</a>
+        <a href="booking.html">Booking</a>
+        <a href="orders.html">Orders</a>
+      </div>
+      <p class="footer-copy">© 2026 M-SPEC BY WPF · 960121</p>
+    </div>
+  </footer>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/checkout.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/booking-page.js"></script>
+</body>
+</html>

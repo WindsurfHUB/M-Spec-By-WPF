@@ -1,11 +1,13 @@
 /* =============================================
    main.js — UX Engineer
-   Session 3: Event Delegation + Debouncing
-   Session 4: Single Source of Truth (renderCart)
+   Updated: แยกหน้า booking/orders ออก
+   - index.html: แสดงแค่ catalog + booking summary
+   - booking.html: booking-page.js จัดการ slot popup
+   - orders.html: orders-page.js จัดการ orders
    ============================================= */
 
 // =============================================
-// RENDER CART — called by CartService.saveAndRefresh()
+// RENDER CART
 // =============================================
 function renderCart(cartState) {
   const container = document.getElementById('cart-items');
@@ -46,7 +48,7 @@ function renderCart(cartState) {
       <div class="cart-item-info">
         <p class="cart-item-name">${item.name}</p>
         <p class="cart-item-price">฿${(item.price * item.quantity).toLocaleString('th-TH')}</p>
-        ${item.carDetails ? `<p class="cart-item-car-details" style="font-size:11px;color:#888;margin-top:4px;">🚗 ${item.carDetails}</p>` : ''}
+        ${item.carDetails ? `<p style="font-size:11px;color:#888;margin-top:4px;">🚗 ${item.carDetails}</p>` : ''}
         <div class="cart-item-qty">
           <button class="qty-btn" data-action="minus" data-id="${item.id}" aria-label="ลด">−</button>
           <span class="qty-num">${item.quantity}</span>
@@ -60,70 +62,6 @@ function renderCart(cartState) {
       </button>
     </div>
   `).join('');
-}
-
-// =============================================
-// RENDER SLOTS — dyno booking grid
-// =============================================
-function renderSlots(slots) {
-  const container = document.getElementById('slots-container');
-  if (!container) return;
-
-  if (!slots || slots.length === 0) {
-    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตว่างในขณะนี้</p>`;
-    return;
-  }
-
-  // Filter: show only tomorrow (today+1) through today+7
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const endDay = new Date(today);
-  endDay.setDate(today.getDate() + 8);
-
-  const filtered = slots.filter(slot => {
-    const d = new Date(slot.slot_date);
-    return d >= tomorrow && d <= endDay;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตในช่วง 7 วันข้างหน้า</p>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(slot => {
-    const isFull    = slot.current_bookings >= slot.max_capacity;
-    const filled    = slot.current_bookings || 0;
-    const max       = slot.max_capacity || 3;
-    const available = max - filled;
-
-    const date = slot.slot_date && slot.slot_time
-      ? new Date(`${slot.slot_date}T${slot.slot_time}`)
-      : new Date(slot.slot_datetime || slot.date);
-    const dateStr = date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
-    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-
-    const dots = Array.from({ length: max }, (_, i) =>
-      `<span class="slot-dot ${i < filled ? 'filled' : ''}"></span>`
-    ).join('');
-
-    return `
-      <div class="slot-card ${isFull ? 'slot-full' : ''}" data-slot-id="${slot.id}">
-        <p class="slot-date">${dateStr}</p>
-        <p class="slot-time">${timeStr}</p>
-        <div class="slot-capacity">
-          <div class="slot-dots">${dots}</div>
-          <span class="slot-capacity-text">${available}/${max} ว่าง</span>
-        </div>
-        ${isFull
-          ? `<div class="slot-badge slot-badge-full">FULL</div>`
-          : `<button class="btn-book-slot btn-primary" data-slot-id="${slot.id}" data-slot-name="${dateStr} ${timeStr}">
-               BOOK SLOT
-             </button>`
-        }
-      </div>`;
-  }).join('');
 }
 
 // =============================================
@@ -175,36 +113,107 @@ function renderParts(parts) {
 }
 
 // =============================================
-// RENDER ORDERS — order history
+// RENDER BOOKING SUMMARY — index.html only
+// แสดงแค่ "จองวันไหน + เวลา + สถานะ"
 // =============================================
-function renderOrders(orders) {
-  const container = document.getElementById('orders-container');
+function renderBookingSummary(bookings) {
+  const container = document.getElementById('bookings-container');
   if (!container) return;
 
-  if (!orders || orders.length === 0) {
-    container.innerHTML = `<p class="orders-empty-msg">ยังไม่มีออเดอร์ จองคิว Dyno หรือเลือกอะไหล่ได้เลย!</p>`;
+  // ซ่อน login prompt ถ้า render ได้
+  document.getElementById('bookings-login-prompt')?.classList.add('hidden');
+
+  if (!bookings || bookings.length === 0) {
+    container.innerHTML = `
+      <p class="bookings-empty-msg">
+        ยังไม่มีการจอง Dyno<br/>
+        <a href="booking.html" style="color:var(--c-red);text-decoration:underline;font-size:12px;">จองสล็อตแรกของคุณ →</a>
+      </p>`;
     return;
   }
 
-  const statusClass = { Pending: 'status-pending', Sourcing: 'status-sourcing', 'In Stock': 'status-instock', Shipped: 'status-shipped' };
+  container.innerHTML = bookings.map(b => {
+    const date = new Date(`${b.slot_date}T${b.slot_time || '09:00'}`);
+    const dateStr = date.toLocaleDateString('th-TH', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const status = b.status || 'Pending';
+    const statusClass = status === 'confirmed' || status === 'Confirmed'
+      ? 'bsc-status-confirmed' : 'bsc-status-pending';
 
-  container.innerHTML = orders.map(order => `
-    <div class="order-card">
-      <div>
-        <p class="order-id">#${String(order.id).padStart(5, '0')}</p>
-        <p class="order-name">${order.type === 'booking' ? '🏎 Dyno Session' : '⚙️ Parts Order'}</p>
-        <p class="order-date">${new Date(order.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-      </div>
-      <div style="text-align:right">
-        <span class="order-status-badge ${statusClass[order.status] || 'status-pending'}">${order.status || 'Pending'}</span>
-        ${order.total_price ? `<p style="margin-top:8px;font-family:var(--font-display);font-size:20px">฿${Number(order.total_price).toLocaleString('th-TH')}</p>` : ''}
-      </div>
-    </div>`
-  ).join('');
+    return `
+      <div class="booking-summary-card">
+        <div class="bsc-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="bsc-info">
+          <p class="bsc-date">${dateStr}</p>
+          <p class="bsc-time">${timeStr}</p>
+          ${b.car_details ? `<p class="bsc-car">🚗 ${b.car_details}</p>` : ''}
+        </div>
+        <span class="bsc-status ${statusClass}">${status.toUpperCase()}</span>
+      </div>`;
+  }).join('');
 }
 
 // =============================================
-// DEBOUNCE (Session 3)
+// RENDER SLOTS — used by booking-page.js
+// =============================================
+function renderSlots(slots) {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+
+  if (!slots || slots.length === 0) {
+    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตว่างในขณะนี้</p>`;
+    return;
+  }
+
+  container.innerHTML = slots.map(slot => {
+    const isFull    = slot.current_bookings >= slot.max_capacity;
+    const filled    = slot.current_bookings || 0;
+    const max       = slot.max_capacity || 3;
+    const available = max - filled;
+
+    const date = slot.slot_date && slot.slot_time
+      ? new Date(`${slot.slot_date}T${slot.slot_time}`)
+      : new Date(slot.slot_datetime || slot.date);
+    const dateStr = date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
+    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+    const dots = Array.from({ length: max }, (_, i) =>
+      `<span class="slot-dot ${i < filled ? 'filled' : ''}"></span>`
+    ).join('');
+
+    return `
+      <div class="slot-card ${isFull ? 'slot-full' : ''}" data-slot-id="${slot.id}">
+        <p class="slot-date">${dateStr}</p>
+        <p class="slot-time">${timeStr}</p>
+        <div class="slot-capacity">
+          <div class="slot-dots">${dots}</div>
+          <span class="slot-capacity-text">${available}/${max} ว่าง</span>
+        </div>
+        ${isFull
+          ? `<div class="slot-badge-full">FULLY BOOKED</div>`
+          : `<button class="btn-book-slot btn-primary"
+               data-slot-id="${slot.id}"
+               data-date="${dateStr}"
+               data-time="${timeStr}"
+               data-avail="${available}/${max}">
+               BOOK SLOT
+             </button>`
+        }
+      </div>`;
+  }).join('');
+}
+
+// =============================================
+// DEBOUNCE
 // =============================================
 function debounce(fn, delay = 400) {
   let timer;
@@ -215,24 +224,21 @@ function debounce(fn, delay = 400) {
 }
 
 // =============================================
-// CART SIDEBAR EVENTS (Session 3: Event Delegation)
+// CART SIDEBAR EVENTS
 // =============================================
 function initCartSidebarEvents() {
   const sidebar = document.getElementById('cart-sidebar');
   if (!sidebar) return;
 
-  // One listener — handles qty + remove via delegation
   sidebar.addEventListener('click', (e) => {
     const removeBtn = e.target.closest('.cart-item-remove');
     const qtyBtn    = e.target.closest('.qty-btn');
-
     if (removeBtn) {
-      const id = Number(removeBtn.dataset.id);
-      CartService.removeFromCart(id);
+      CartService.removeFromCart(Number(removeBtn.dataset.id));
       return;
     }
     if (qtyBtn) {
-      const id  = Number(qtyBtn.dataset.id);
+      const id   = Number(qtyBtn.dataset.id);
       const item = CartService.getCartItems().find(i => i.id === id);
       if (!item) return;
       const newQty = qtyBtn.dataset.action === 'plus' ? item.quantity + 1 : item.quantity - 1;
@@ -240,18 +246,12 @@ function initCartSidebarEvents() {
     }
   });
 
-  // Open/Close
   document.getElementById('btn-cart')?.addEventListener('click', openCart);
   document.getElementById('btn-close-cart')?.addEventListener('click', closeCart);
   document.getElementById('cart-overlay')?.addEventListener('click', closeCart);
 
-  // Checkout (Calls handleCheckout() from checkout.js)
   document.getElementById('btn-checkout')?.addEventListener('click', () => {
-    if (typeof handleCheckout === 'function') {
-      handleCheckout();
-    } else {
-      console.error('handleCheckout is not defined in checkout.js');
-    }
+    if (typeof handleCheckout === 'function') handleCheckout();
   });
 }
 
@@ -268,7 +268,7 @@ function closeCart() {
 }
 
 // =============================================
-// EVENT DELEGATION — Parts Container (Session 3)
+// PARTS EVENTS — add to cart
 // =============================================
 function initPartsEvents() {
   const container = document.getElementById('parts-container');
@@ -285,7 +285,6 @@ function initPartsEvents() {
       category: addBtn.dataset.category
     });
 
-    // Visual feedback
     addBtn.textContent = 'ADDED ✓';
     addBtn.style.background = '#27ae60';
     setTimeout(() => {
@@ -296,77 +295,25 @@ function initPartsEvents() {
 }
 
 // =============================================
-// EVENT DELEGATION — Slots Container with carDetails input
-// =============================================
-function initSlotsEvents() {
-  const container = document.getElementById('slots-container');
-  if (!container) return;
-
-  container.addEventListener('click', (e) => {
-    const bookBtn = e.target.closest('.btn-book-slot');
-    if (!bookBtn) return;
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      openModal('login');
-      return;
-    }
-
-    // 🌟 Interactive prompt to capture car details
-    const carDetails = prompt('กรุณากรอกข้อมูลรถยนต์ของคุณสำหรับการจูน Dyno (เช่น ยี่ห้อ รุ่นรถ และเลขทะเบียน):\nตัวอย่าง: Toyota Yaris (กข-1234 เชียงใหม่)');
-    if (carDetails === null) {
-      // User clicked "Cancel", abort booking
-      return;
-    }
-
-    const cleanCarDetails = carDetails.trim() || 'ไม่ได้ระบุข้อมูลรถ';
-
-    CartService.addToCart({
-      id:         Number(bookBtn.dataset.slotId),
-      name:       'Dyno Session — ' + bookBtn.dataset.slotName,
-      price:      1500,
-      quantity:   1,
-      type:       'booking',
-      carDetails: cleanCarDetails
-    });
-
-    bookBtn.textContent = 'BOOKED ✓';
-    bookBtn.disabled = true;
-    bookBtn.style.background = '#27ae60';
-    openCart();
-  });
-}
-
-// =============================================
-// FILTER BAR EVENTS — Debounce on search (Session 3)
+// FILTER BAR EVENTS
 // =============================================
 function initFilterEvents() {
-  const searchInput   = document.getElementById('search-input');
-  const catFilter     = document.getElementById('filter-category');
-  const priceFilter   = document.getElementById('filter-price');
+  const searchInput = document.getElementById('search-input');
+  const catFilter   = document.getElementById('filter-category');
+  const priceFilter = document.getElementById('filter-price');
 
   const applyFilters = () => {
     const keyword  = searchInput?.value.trim() || '';
     const category = catFilter?.value || '';
     const priceVal = priceFilter?.value || '';
     let minPrice, maxPrice;
-
     if (priceVal) {
-      const [min, max] = priceVal.split('-').map(Number);
-      minPrice = min;
-      maxPrice = max;
+      [minPrice, maxPrice] = priceVal.split('-').map(Number);
     }
-
-    // Call catalog fetch if available
-    if (typeof fetchParts === 'function') {
-      fetchParts({ keyword, category, minPrice, maxPrice });
-    }
+    if (typeof fetchParts === 'function') fetchParts({ keyword, category, minPrice, maxPrice });
   };
 
-  // Debounce search (Session 3 — 400ms)
-  if (searchInput) {
-    searchInput.addEventListener('input', debounce(applyFilters, 400));
-  }
+  if (searchInput) searchInput.addEventListener('input', debounce(applyFilters, 400));
   if (catFilter)   catFilter.addEventListener('change', applyFilters);
   if (priceFilter) priceFilter.addEventListener('change', applyFilters);
 }
@@ -381,7 +328,9 @@ function showToast(message, type = 'success') {
     : `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${icon}</svg><span>${message}</span>`;
+  toast.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg>
+    <span>${message}</span>`;
   document.body.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('show'));
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
@@ -401,23 +350,60 @@ function initNavbar() {
 }
 
 // =============================================
+// BOOKING SUMMARY — index.html
+// fetch bookings และ render แค่ dates (ไม่ใช่ form)
+// =============================================
+async function initBookingSummary() {
+  // มีอยู่แค่ index.html
+  const section = document.getElementById('my-bookings');
+  if (!section) return;
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    document.getElementById('bookings-login-prompt')?.classList.remove('hidden');
+    document.getElementById('bookings-container').innerHTML = '';
+    // ปุ่ม login ใน prompt
+    document.getElementById('btn-login-booking')?.addEventListener('click', () => {
+      if (typeof openModal === 'function') openModal('login');
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/bookings', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    renderBookingSummary(data.bookings || data);
+  } catch {
+    document.getElementById('bookings-container').innerHTML =
+      `<p class="bookings-empty-msg">โหลดข้อมูลการจองไม่สำเร็จ</p>`;
+  }
+}
+
+// =============================================
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initCartSidebarEvents();
   initPartsEvents();
-  initSlotsEvents();
   initFilterEvents();
 
-  // Initial render from hydrated cartState
   renderCart(CartService.getCartItems());
 
-  // Fetch initial data (catalog.js handles these)
-  if (typeof fetchParts  === 'function') fetchParts({});
-  if (typeof fetchSlots  === 'function') fetchSlots();
-  if (typeof fetchOrders === 'function') {
-    const token = localStorage.getItem('token');
-    if (token) fetchOrders();
-  }
+  // fetch parts ถ้าอยู่ index.html
+  if (typeof fetchParts === 'function') fetchParts({});
+
+  // booking summary — index.html เท่านั้น
+  initBookingSummary();
 });
+
+// expose globals
+window.openCart  = openCart;
+window.closeCart = closeCart;
+window.showToast = showToast;
+window.renderCart = renderCart;
+window.renderSlots = renderSlots;
+window.renderParts = renderParts;
