@@ -1,361 +1,217 @@
-```markdown
 # 🏎️ Project Brief: ระบบจองคิวปรับจูนรถ (Dyno Test) + ขายอะไหล่หายาก
 
 ## 📝 Project Overview
-A niche marketplace combining **Dyno Tuning appointment booking (Capacity Logic)** and **Rare Car Parts sales (Multi-Step Status Logic)**. Built with a Node.js/Express backend, vanilla JS frontend, and SQLite/MySQL database.
+A niche marketplace combining **Dyno Tuning appointment booking (Capacity Logic — Niche 4)** and **Rare Car Parts sales (Multi-Step Status Logic — Niche 1)**. Built with Node.js/Express backend, vanilla JS frontend, SQLite database, and a full admin panel.
 
-* **Stack:** HTML/CSS/JS (Frontend) · Node.js + Express (Backend) · SQLite or MySQL (Database) · JWT + bcrypt (Auth)
+**Stack:** HTML/CSS/JS · Node.js + Express · SQLite (better-sqlite3) · JWT + bcrypt · multer
 
 ---
 
-## 📁 Suggested Folder Structure
-```text
-project/
+## 📁 Final Folder Structure
+
+```
+M-Spec-By-WPF/
 ├── public/
-│   ├── index.html
-│   ├── css/
+│   ├── index.html              # Main storefront
+│   ├── booking.html            # Dyno slot booking page
+│   ├── orders.html             # Order & booking history
+│   ├── admin.html              # Admin panel
+│   ├── images/                 # Permanent product images
+│   ├── uploads/                # Admin-uploaded images
+│   ├── css/style.css
 │   └── js/
-│       ├── main.js
-│       ├── auth.js
-│       ├── cart.js
-│       └── catalog.js
+│       ├── main.js             # renderParts, renderSlots, renderCart, debounce
+│       ├── auth.js             # JWT login/register/hydration
+│       ├── cart.js             # cartState[] single source of truth
+│       ├── catalog.js          # all fetch() calls
+│       ├── checkout.js         # POST /api/orders
+│       ├── booking-page.js     # slot selection modal
+│       └── orders-page.js      # merged order+booking history
 ├── src/
 │   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── partsRoutes.js
+│   │   ├── slotsRoutes.js
+│   │   ├── bookingRoutes.js
+│   │   ├── orderRoutes.js
+│   │   └── adminRoutes.js      # multer + adminGuard + all admin endpoints
 │   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── catalogController.js
+│   │   ├── bookingController.js
+│   │   ├── orderController.js
+│   │   └── adminController.js  # updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage
 │   ├── services/
+│   │   ├── authService.js
+│   │   ├── catalogService.js
+│   │   ├── bookingService.js   # checkCapacity() INSIDE transaction (Bonus A)
+│   │   └── orderService.js     # ACID transaction (Niche 1)
+│   ├── middleware/
+│   │   └── authenticate.js
 │   └── db/
-├── .env
+│       ├── init.js             # 7 tables + seed data with image paths
+│       └── database.sqlite     # gitignored
+├── Document/
+│   ├── Project_Brief.md
+│   └── uml_activity_diagram_get_parts.png
+├── .env.example
 ├── .gitignore
+├── server.js
 ├── package.json
-└── server.js
-
+└── README.md
 ```
 
 ---
 
-## 🏗️ LEAD ARCHITECT — You (Backend/DevOps)
+## 🏗️ LEAD ARCHITECT (Backend/DevOps)
 
-### 🔹 Phase 1 — Project Setup (Day 1–2)
+### ✅ Phase 1 — Project Setup
+- [x] Git repo with `.gitignore` (`.env`, `node_modules`, `*.sqlite`)
+- [x] `package.json` with `"start": "nodemon server.js"` and `"dev": "node --watch server.js"`
+- [x] `.env.example` with `PORT`, `JWT_SECRET`, `ADMIN_KEY`
+- [x] `server.js` with `express.json()`, static files, error handler
+- [x] Branch strategy: `main` (production) / `windsurf` (Lead Architect) / `flowill` (Integration Engineer) / `pond` (UX Engineer)
 
-* [x] Init Git repo, set up `.gitignore` (must include `.env`, `node_modules`)
-* [x] Create `package.json` with scripts: `"start": "node server.js"`
-* [x] Set up `.env` template file (`.env.example` for teammates)
-
-```ini
-JWT_SECRET=
-DB_HOST=
-DB_USER=
-DB_PASS=
-DB_NAME=
-PORT=3000
-
-```
-
-* [x] Set up `server.js` with `express.json()` middleware
-* [x] Establish Git branching rules for team (e.g., `main`, `dev`, `feature` branches)
-
-### 🔹 Phase 2 — SQL Schema Design (Day 2–3)
-
-*Design and create ALL tables. You own this entirely.*
+### ✅ Phase 2 — SQL Schema (7 tables)
+All tables in `src/db/init.js` with FK constraints and seed data:
 
 ```sql
--- Users
-CREATE TABLE Users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT NOT NULL UNIQUE,
-  email TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Parts (Rare Car Parts catalog)
-CREATE TABLE Parts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  description TEXT,
-  category TEXT,
-  price REAL NOT NULL,
-  stock INTEGER DEFAULT 0,
-  image_url TEXT
-);
-
--- DynoSlots (Bookable time slots)
-CREATE TABLE DynoSlots (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  slot_date DATE NOT NULL,
-  slot_time TEXT NOT NULL,
-  max_capacity INTEGER DEFAULT 3,
-  current_bookings INTEGER DEFAULT 0
-);
-
--- Orders (for Parts purchase)
-CREATE TABLE Orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  total_price REAL NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES Users(id)
-);
-
--- OrderItems
-CREATE TABLE OrderItems (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  order_id INTEGER NOT NULL,
-  part_id INTEGER NOT NULL,
-  quantity INTEGER NOT NULL,
-  price_at_purchase REAL NOT NULL,
-  FOREIGN KEY (order_id) REFERENCES Orders(id),
-  FOREIGN KEY (part_id) REFERENCES Parts(id)
-);
-
--- OrderStatusHistory (Multi-step status tracking)
-CREATE TABLE OrderStatusHistory (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  order_id INTEGER NOT NULL,
-  status TEXT CHECK(status IN ('Pending','Sourcing','In Stock','Shipped')) NOT NULL,
-  changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (order_id) REFERENCES Orders(id)
-);
-
--- Bookings (Dyno appointments)
-CREATE TABLE Bookings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  slot_id INTEGER NOT NULL,
-  car_details TEXT,
-  status TEXT DEFAULT 'Pending',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES Users(id),
-  FOREIGN KEY (slot_id) REFERENCES DynoSlots(id)
-);
-
+Users(id, username, email, password_hash, created_at)
+Parts(id, name, description, category, price, stock, image_url)
+DynoSlots(id, slot_date, slot_time, max_capacity, current_bookings)
+Orders(id, user_id, total_price, created_at)  → FK Users
+OrderItems(id, order_id, part_id, quantity, price_at_purchase)  → FK Orders, Parts
+OrderStatusHistory(id, order_id, status CHECK IN('Pending','Sourcing','In Stock','Shipped'), changed_at)  → FK Orders
+Bookings(id, user_id, slot_id, car_details, status, created_at)  → FK Users, DynoSlots
 ```
 
-### 🔹 Phase 3 — Service Layer (Core Week)
+Seed data: 8 rare car parts with `/images/` paths + 42 dyno slots (14 days × 3 time slots).
 
-*Write all business logic. Export clean functions for controllers to call.*
+### ✅ Phase 3 — Service Layer
 
-#### `src/services/authService.js`
+**`authService.js`** — bcrypt hash/verify, JWT sign/verify, registerUser (duplicate check), loginUser (same error for bad email/password), getUserById
 
-```javascript
-async function hashPassword(plain) {}      // bcrypt.hash
-async function verifyPassword(plain, hash) {} // bcrypt.compare
-function generateToken(userId) {}          // jwt.sign
-function verifyToken(token) {}             // jwt.verify
+**`catalogService.js`** — getAllParts(filters: keyword/category/minPrice/maxPrice), getAllSlots(), getPartById()
 
-```
+**`bookingService.js`** — checkCapacity() called INSIDE transaction, createBooking() (atomic: check + INSERT + counter update), getUserBookings(), cancelBooking() (frees slot capacity)
 
-#### `src/services/bookingService.js`
+**`orderService.js`** — createOrder() ACID transaction (re-fetches price from DB, stock check, INSERT Orders + OrderItems + StatusHistory), updateOrderStatus() (validates transition order, prevents skipping), getOrderHistory(), getOrderById()
 
-```javascript
-async function checkCapacity(slotId) {}    // returns true/false
-async function createBooking(userId, slotId, carDetails) {}
-async function getUserBookings(userId) {}
+### ✅ Phase 4 — Controllers & Routes (6 route groups, all 3-layer SoC)
 
-```
+| Route | Controller | Service |
+|---|---|---|
+| authRoutes | authController | authService |
+| partsRoutes | catalogController | catalogService |
+| slotsRoutes | catalogController | catalogService |
+| bookingRoutes | bookingController | bookingService |
+| orderRoutes | orderController | orderService |
+| adminRoutes | adminController | orderService + direct DB |
 
-#### `src/services/orderService.js`
+### ✅ Phase 5 — Middleware
+`authenticate.js` — extracts Bearer token, verifies JWT, attaches `req.user`
 
-```javascript
-async function createOrder(userId, cartItems) {}  // atomic transaction
-async function updateOrderStatus(orderId, newStatus) {} // status history
-async function getOrderHistory(userId) {}
+### ✅ Phase 6 — Admin Panel Backend
+New endpoints in `adminRoutes.js` (protected by `X-Admin-Key`):
+- `GET /api/admin/parts` — list all parts
+- `POST /api/admin/parts` — add new product
+- `PATCH /api/admin/parts/:id/stock` — update stock quantity
+- `POST /api/admin/parts/:id/image` — upload image (multer, max 8MB)
+- `DELETE /api/admin/parts/:id/image` — remove image
 
-```
-
-#### `src/services/catalogService.js`
-
-```javascript
-async function getAllParts(filters) {}     // keyword, price, category
-async function getAllSlots() {}            // available dyno slots
-async function getPartById(id) {}
-
-```
-
-### 🔹 Phase 4 — Controllers & Routes (Core Week)
-
-* `routes/authRoutes.js` ➔ `POST /api/auth/register`, `POST /api/auth/login`
-* `routes/catalogRoutes.js` ➔ `GET /api/parts`, `GET /api/slots`
-* `routes/orderRoutes.js` ➔ `POST /api/orders`
-* `routes/bookingRoutes.js` ➔ `POST /api/bookings`
-* `routes/adminRoutes.js` ➔ `PATCH /api/orders/:id/status` (update status)
-
-> **Note:** Each route file calls a controller. Each controller calls a service. No business logic in routes.
-
-### 🔹 Phase 5 — Middleware
-
-#### `src/middleware/authenticate.js`
-
-```javascript
-// Verify JWT from Authorization header
-// Attach user to req.user
-
-```
-
-### 🔹 Phase 6 — Go-Live Audit (Final 2 Days)
-
-* [ ] Scan ALL files — zero hardcoded secrets
-* [ ] Confirm `.env` is in `.gitignore`
-* [ ] Test `npm install && npm start` on a clean folder
-* [ ] All errors return clean JSON `{ error: "message" }`, no stack traces to client
-* [ ] All SQL uses parameterized queries `?` — grep for any string concatenation
+### ✅ Phase 7 — Go-Live Audit
+- [x] Zero hardcoded secrets — all in `.env`
+- [x] `.env` in `.gitignore`
+- [x] `npm install && npm start` works zero-config
+- [x] Global error handler hides stack traces — `{ error: "message" }` only
+- [x] All SQL uses `?` parameterized queries throughout
 
 ---
 
-## 🔌 INTEGRATION ENGINEER Brief (API/State)
+## 🔌 INTEGRATION ENGINEER (API/State)
 
-*Hand this to your teammate.*
+### Files
+- `auth.js` — register/login fetch, JWT stored in localStorage, `initAuth()` hydration on page load
+- `catalog.js` — fetchParts(filters), fetchSlots(), fetchOrders() with Bearer header
+- `cart.js` — `cartState[]` single source of truth, JSON.stringify/parse to localStorage
+- `checkout.js` — POST `/api/orders` with `{ items: [{ partId, quantity }] }` — never sends price
 
-### 🎯 Their Responsibility
-
-They are the bridge between your backend and the UX Engineer's frontend.
-
-### 🛠️ What They Build
-
-#### `public/js/auth.js` — Handle register/login forms
-
-```javascript
-// On login success → store JWT in localStorage
-localStorage.setItem('token', data.token)
-localStorage.setItem('user', JSON.stringify(data.user))
-
-// On page load → check if token exists (Hydration Logic)
-function initAuth() {
-  const token = localStorage.getItem('token')
-  if (token) { showLoggedInUI() }
-}
-
-```
-
-#### `public/js/catalog.js` — Fetch and pass data to UX Engineer's render functions
-
-```javascript
-// fetch('/api/parts') → call UX's renderParts(data)
-// fetch('/api/slots') → call UX's renderSlots(data)
-// Must attach JWT to all protected requests:
-headers: { 'Authorization': `Bearer ${token}` }
-
-```
-
-#### `public/js/cart.js` — State management
-
-```javascript
-// cartState = single source of truth (array)
-// On every change → JSON.stringify to localStorage
-// On page load → JSON.parse from localStorage (Hydration)
-let cartState = JSON.parse(localStorage.getItem('cart')) || []
-
-```
-
-#### `public/js/checkout.js` — POST order to backend
-
-```javascript
-// Send cartState to POST /api/orders
-// Never calculate final price on frontend
-// Display what backend returns as confirmed total
-
-```
-
-### ⚠️ Key Rules for This Role
-
-* Never calculate prices on the frontend — send items to backend, display what comes back
-* Always include JWT in headers for protected routes
-* Handle all fetch errors gracefully — show user-friendly messages, not undefined
-* The `cartState` array is the **ONLY** source of truth — never read from the DOM to get cart data
+### Key Rules
+- Never calculate prices on frontend — send `partId + quantity`, display what backend returns
+- Always include `Authorization: Bearer ${token}` on protected requests
+- `cartState` is the ONLY source of truth — never read from DOM
 
 ---
 
-## 🎨 UX ENGINEER Brief (Frontend/Interaction)
+## 🎨 UX ENGINEER (Frontend/Interaction)
 
-*Hand this to your other teammate.*
+### Files
+- `index.html` — main storefront with catalog, cart sidebar, booking summary
+- `booking.html` — dyno slot grid (7-day filter), booking modal with car details
+- `orders.html` — merged order + booking history with tab filter
+- `admin.html` — admin panel with image upload, add product form, stock table
+- `style.css` — full dark theme, responsive layout
+- `main.js` — renderParts(), renderSlots() (7-day filter), renderCart(), renderBookingSummary(), event delegation, debounce 400ms, toast notifications
+- `booking-page.js` — slot selection, car details modal, booking via API
+- `orders-page.js` — fetch orders + bookings, merge + sort, tab UI
 
-### 🎯 Their Responsibility
-
-Everything the user sees and touches. No business logic — just rendering and interaction.
-
-### 🛠️ What They Build
-
-#### `public/css/` — Styling for:
-
-* Product/Parts catalog cards
-* Dyno booking slot grid
-* Login/Register forms
-* Cart sidebar or modal
-* Order status tracker (show the Pending ➔ Sourcing ➔ In Stock ➔ Shipped pipeline visually)
-
-#### `public/js/main.js` — UI rendering functions that Integration Engineer will call:
-
-```javascript
-// Called by catalog.js after fetch
-function renderParts(partsArray) {
-  // Loop partsArray → create card HTML dynamically
-  // NO hardcoded product HTML
-}
-
-function renderSlots(slotsArray) {
-  // Show available slots, disable full ones
-}
-
-function renderCart(cartState) {
-  // Re-render entire cart from state array
-}
-
-```
-
-#### Event Delegation — ONE listener on parent, not on each card:
-
-```javascript
-// ONE listener on the parts container
-document.querySelector('#parts-container').addEventListener('click', (e) => {
-  if (e.target.matches('.btn-add-to-cart')) {
-    const partId = e.target.dataset.id
-    // call Integration Engineer's addToCart(partId)
-  }
-  if (e.target.matches('.btn-book-slot')) {
-    const slotId = e.target.dataset.slotId
-    // call Integration Engineer's bookSlot(slotId)
-  }
-})
-
-```
-
-#### Debounce on Search:
-
-```javascript
-function debounce(fn, delay = 400) {
-  let timer
-  return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
-  }
-}
-
-searchInput.addEventListener('input', debounce((e) => {
-  // call Integration Engineer's fetchParts({ keyword: e.target.value })
-}, 400))
-
-```
-
-### ⚠️ Key Rules for This Role
-
-* Never write `fetch()` calls — ask Integration Engineer for the data
-* Never write SQL or touch the backend
-* All product cards must be generated from a JavaScript loop — zero hardcoded `<div class="card">` for individual products in HTML
+### Key Patterns
+- Event delegation: ONE listener on `#parts-container` for all `btn-add-to-cart` clicks
+- Debounce: 400ms on search input before calling `fetchParts()`
+- Zero hardcoded product HTML — all rendered from API data via JavaScript loops
 
 ---
 
-## 🗓️ Suggested Timeline (4–5 Weeks)
+## 📊 1-3 Scoring System
 
-| Week | Lead Architect (You) | Integration Engineer | UX Engineer |
-| --- | --- | --- | --- |
-| **Week 1** | Setup, Schema, Auth Service | Study API docs, set up fetch helpers | HTML wireframe, CSS layout |
-| **Week 2** | Catalog + Booking Services & Routes | Auth flow (login/register/JWT) | Render functions, event delegation |
-| **Week 3** | Order Service + Status History | Cart state + localStorage | Search debounce, cart UI |
-| **Week 4** | Admin status update route, Go-Live audit prep | Checkout POST integration | Order status visual tracker |
-| **Week 5** | Final audit, bug fixes | End-to-end testing | Polish UI, responsive fixes |
+| # | Category | Best Practice | Status |
+|---|---|---|---|
+| 1 | Version Control | Conventional Commits & Git Flow | ✅ |
+| 2 | Data Flow | Separation of Content & UI | ✅ |
+| 3 | Interaction | Event Delegation & Debouncing | ✅ |
+| 4 | State | Single Source of Truth & Continuity | ✅ |
+| 5 | Security (Auth) | Architecture of Trust (bcrypt + JWT) | ✅ |
+| 6 | Security (API) | Gatekeeper Pattern | ✅ |
+| 7 | Persistence | Relational Integrity + ACID | ✅ |
+| 8 | SQL Safety | Parameterized Queries | ✅ |
+| 9 | Structure | Controller-Route-Service (SoC) | ✅ |
+| 10 | Deployment | Zero-Config & .env Audit | ✅ |
+
+### ⭐ Bonus A — Stock-Check Concurrency Logic (3 pts)
+`checkCapacity()` runs inside `db.transaction()` in `bookingService.createBooking()`. The capacity check and INSERT are atomic — prevents race conditions on popular slots. Returns `409 Conflict` when full.
 
 ---
 
-## ⭐ Bonus Recommendation
+## 📊 Peer Assessment Rubric
 
-Go for **Bonus A (Stock-Check, 3pts)** — it's the most natural fit. When booking a dyno slot, your `bookingService.checkCapacity()` already does this. Just make sure it's inside the transaction before inserting the booking row. That's the proof the grader needs.
+| # | Category | Weight | Question | How to prove it |
+|---|---|---|---|---|
+| 1 | Logic Contribution | 25% | Contribute to business logic or SQL Schema? | Commit history, service signatures, schema design |
+| 2 | Technical Reliability | 25% | Code follows Gatekeeper and Security patterns? | Parameterized queries, bcrypt, JWT middleware, no secrets in code |
+| 3 | Git & Integration | 25% | Regular commits, helped with merge conflicts? | Conventional commit log on GitHub |
+| 4 | Communication | 25% | Participated in Architectural Handwork? | UML diagram in `/Document`, planning screenshots |
+
+> Peer review form: **https://cmu.to/960121PeerReview**
+
+---
+
+## 🗓️ Actual Timeline (3 Weeks)
+
+| Week | Lead Architect | Integration Engineer | UX Engineer |
+|---|---|---|---|
+| **Week 1** | DB schema, authService, catalogService, routes | auth.js, catalog.js fetch helpers | index.html, style.css, renderParts |
+| **Week 2** | bookingService (capacity tx), orderService (ACID), all routes | cart.js state, checkout.js POST | booking.html, orders.html, event delegation, debounce |
+| **Week 3** | adminController (image/stock/addPart), Go-Live audit | End-to-end wiring, bug fixes | admin.html UI, polish, responsive |
+
+---
+
+## 🌿 Git Flow
+
+```
+main        ← production-ready, submitted code only
+  ├── windsurf   ← Lead Architect (Backend/DevOps)
+  ├── flowill    ← Integration Engineer (API/State)
+  └── pond       ← UX Engineer (Frontend/Interaction)
+```
+
+Conventional Commits: `feat:` / `fix:` / `chore:` / `docs:` / `refactor:`
