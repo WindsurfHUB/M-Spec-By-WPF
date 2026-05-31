@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>M-SPEC | Admin — Part Images</title>
+  <title>M-SPEC | Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
   <style>
@@ -20,48 +20,29 @@
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; border: none; font-family: inherit; }
 
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      background: var(--dark);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      background: var(--dark); border-bottom: 1px solid var(--border);
+      padding: 16px 32px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
     }
     .logo { font-family: var(--font-d); font-size: 24px; }
     .logo span { color: var(--red); }
     .header-badge {
-      font-family: var(--font-m);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      color: var(--red);
-      border: 1px solid var(--red);
-      padding: 3px 10px;
-      border-radius: 2px;
+      font-family: var(--font-m); font-size: 11px; letter-spacing: .12em;
+      color: var(--red); border: 1px solid var(--red); padding: 3px 10px; border-radius: 2px;
     }
     .header-nav a {
-      font-family: var(--font-m);
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      transition: color .2s, border-color .2s;
+      font-family: var(--font-m); font-size: 12px; letter-spacing: .1em;
+      color: var(--muted); padding: 6px 14px; border: 1px solid var(--border);
+      border-radius: 2px; transition: color .2s, border-color .2s;
     }
     .header-nav a:hover { color: var(--white); border-color: var(--muted); }
 
-    /* ── AUTH GATE ── */
+    /* AUTH GATE */
     #auth-gate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 80vh;
-      gap: 16px;
-      padding: 20px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 80vh; gap: 16px; padding: 20px;
     }
     #auth-gate h2 { font-family: var(--font-d); font-size: 36px; letter-spacing: .04em; }
     #auth-gate p  { color: var(--muted); font-size: 13px; }
@@ -81,200 +62,179 @@
     .btn-red:hover { background: #e84118; }
     .auth-error { color: var(--red); font-family: var(--font-m); font-size: 11px; letter-spacing: .08em; }
 
-    /* ── MAIN ── */
+    /* MAIN */
     #main { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+    .section-title {
+      font-family: var(--font-d); font-size: 36px; letter-spacing: .04em; margin-bottom: 6px;
+    }
+    .section-sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .section-divider {
+      border: none; border-top: 1px solid var(--border); margin: 48px 0;
+    }
 
-    .page-title { font-family: var(--font-d); font-size: 48px; letter-spacing: .04em; margin-bottom: 8px; }
-    .page-sub   { color: var(--muted); font-size: 13px; margin-bottom: 36px; }
-
-    /* ── PARTS GRID ── */
+    /* PARTS GRID */
     .parts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
     }
 
+    /* existing part card */
     .part-admin-card {
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      transition: border-color .2s;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden; transition: border-color .2s;
     }
     .part-admin-card:hover { border-color: #444; }
-
-    /* Image area */
     .part-img-area {
-      position: relative;
-      aspect-ratio: 4/3;
-      background: var(--panel);
-      overflow: hidden;
-      cursor: pointer;
+      position: relative; aspect-ratio: 4/3; background: var(--panel);
+      overflow: hidden; cursor: pointer;
     }
-    .part-img-area img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    .part-img-area img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .part-img-placeholder {
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: var(--muted);
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px; color: var(--muted);
     }
     .part-img-placeholder svg { opacity: .4; }
-    .part-img-placeholder span {
-      font-family: var(--font-m);
-      font-size: 11px;
-      letter-spacing: .1em;
-      opacity: .5;
-    }
-
-    /* Upload overlay on hover */
+    .part-img-placeholder span { font-family: var(--font-m); font-size: 11px; letter-spacing: .1em; opacity: .5; }
     .part-img-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.65);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      opacity: 0;
-      transition: opacity .2s;
+      position: absolute; inset: 0; background: rgba(0,0,0,.65);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 6px; opacity: 0; transition: opacity .2s;
     }
     .part-img-area:hover .part-img-overlay { opacity: 1; }
-    .overlay-label {
-      font-family: var(--font-m);
-      font-size: 12px;
-      letter-spacing: .12em;
-      color: var(--white);
-    }
-    .overlay-sub {
-      font-size: 11px;
-      color: rgba(255,255,255,.5);
-      font-family: var(--font-m);
-      letter-spacing: .06em;
-    }
-
-    /* Hidden file input */
+    .overlay-label { font-family: var(--font-m); font-size: 12px; letter-spacing: .12em; color: var(--white); }
+    .overlay-sub { font-size: 11px; color: rgba(255,255,255,.5); font-family: var(--font-m); letter-spacing: .06em; }
     .file-input { display: none; }
-
-    /* Card body */
     .part-admin-body { padding: 14px 16px; }
-    .part-admin-cat {
-      font-family: var(--font-m);
-      font-size: 10px;
-      letter-spacing: .15em;
-      color: var(--red);
-      margin-bottom: 4px;
-    }
-    .part-admin-name {
-      font-family: var(--font-m);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--white);
-      margin-bottom: 2px;
-    }
-    .part-admin-price {
-      font-family: var(--font-d);
-      font-size: 20px;
-      color: var(--white);
-      margin-bottom: 12px;
-    }
+    .part-admin-cat { font-family: var(--font-m); font-size: 10px; letter-spacing: .15em; color: var(--red); margin-bottom: 4px; }
+    .part-admin-name { font-family: var(--font-m); font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+    .part-admin-price { font-family: var(--font-d); font-size: 20px; color: var(--white); margin-bottom: 12px; }
     .part-admin-actions { display: flex; gap: 8px; }
-
     .btn-upload {
-      flex: 1;
-      background: var(--red);
-      color: var(--white);
-      font-family: var(--font-m);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .1em;
-      padding: 8px 12px;
-      border-radius: 2px;
-      transition: background .2s;
-      text-align: center;
+      flex: 1; background: var(--red); color: var(--white);
+      font-family: var(--font-m); font-size: 11px; font-weight: 600; letter-spacing: .1em;
+      padding: 8px 12px; border-radius: 2px; transition: background .2s; text-align: center;
     }
     .btn-upload:hover { background: #e84118; }
-
     .btn-remove-img {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-family: var(--font-m);
-      font-size: 11px;
-      letter-spacing: .08em;
-      padding: 8px 12px;
-      border-radius: 2px;
-      transition: color .2s, border-color .2s;
+      background: transparent; color: var(--muted); border: 1px solid var(--border);
+      font-family: var(--font-m); font-size: 11px; letter-spacing: .08em;
+      padding: 8px 12px; border-radius: 2px; transition: color .2s, border-color .2s;
     }
     .btn-remove-img:hover { color: var(--red); border-color: var(--red); }
-
-    /* Upload progress overlay */
-    .card-uploading {
-      position: relative;
-      pointer-events: none;
-    }
+    .card-uploading { position: relative; pointer-events: none; }
     .card-uploading::after {
-      content: 'UPLOADING...';
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-m);
-      font-size: 12px;
-      letter-spacing: .15em;
-      color: var(--white);
-      animation: pulse 1s ease-in-out infinite;
+      content: 'UPLOADING...'; position: absolute; inset: 0;
+      background: rgba(0,0,0,.75); display: flex; align-items: center;
+      justify-content: center; font-family: var(--font-m); font-size: 12px;
+      letter-spacing: .15em; color: var(--white); animation: pulse 1s ease-in-out infinite;
     }
-    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
 
-    /* ── TOAST ── */
+    /* ADD NEW PRODUCT CARD */
+    .part-admin-card-new {
+      background: var(--dark); border: 2px dashed var(--border);
+      border-radius: 4px; overflow: hidden; transition: border-color .2s;
+      display: flex; flex-direction: column;
+    }
+    .part-admin-card-new:hover { border-color: var(--red); }
+    .new-card-header {
+      background: var(--panel); padding: 16px;
+      font-family: var(--font-d); font-size: 20px; letter-spacing: .06em;
+      color: var(--red); border-bottom: 1px solid var(--border);
+    }
+    .new-card-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .new-input {
+      width: 100%; background: var(--panel); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m); font-size: 13px;
+      letter-spacing: .06em; padding: 9px 12px; border-radius: 2px; outline: none;
+      transition: border-color .2s;
+    }
+    .new-input:focus { border-color: var(--red); }
+    .new-input::placeholder { color: #555; }
+    .new-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-add-part {
+      width: 100%; background: var(--red); color: var(--white);
+      font-family: var(--font-m); font-size: 12px; font-weight: 600; letter-spacing: .12em;
+      padding: 10px; border-radius: 2px; transition: background .2s; margin-top: 4px;
+    }
+    .btn-add-part:hover { background: #e84118; }
+
+    /* STOCK TABLE */
+    .stock-table-wrap { overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-m); font-size: 13px;
+    }
+    thead tr {
+      background: var(--panel); border-bottom: 1px solid var(--border);
+    }
+    thead th {
+      text-align: left; padding: 12px 16px;
+      font-size: 10px; letter-spacing: .15em; color: var(--muted); font-weight: 600;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border); transition: background .15s;
+    }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 12px 16px; vertical-align: middle; }
+    .td-id   { color: var(--muted); font-size: 11px; width: 48px; }
+    .td-cat  { color: var(--red); font-size: 10px; letter-spacing: .12em; }
+    .td-name { font-weight: 600; color: var(--white); }
+    .td-price { font-family: var(--font-d); font-size: 18px; color: var(--white); }
+    .stock-badge {
+      display: inline-block; font-size: 10px; letter-spacing: .1em;
+      padding: 3px 10px; border-radius: 2px;
+    }
+    .stock-ok  { background: rgba(39,174,96,.12); color: #2ecc71; border: 1px solid rgba(39,174,96,.3); }
+    .stock-low { background: rgba(230,126,34,.12); color: #e67e22; border: 1px solid rgba(230,126,34,.3); }
+    .stock-out { background: rgba(192,57,43,.12);  color: var(--red); border: 1px solid rgba(192,57,43,.3); }
+    .stock-input-wrap { display: flex; align-items: center; gap: 8px; }
+    .stock-input {
+      width: 72px; background: var(--panel); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m); font-size: 14px; font-weight: 600;
+      text-align: center; padding: 6px 8px; border-radius: 2px; outline: none;
+      transition: border-color .2s;
+    }
+    .stock-input:focus { border-color: var(--red); }
+    .btn-save-stock {
+      background: var(--red); color: var(--white);
+      font-family: var(--font-m); font-size: 10px; font-weight: 600; letter-spacing: .1em;
+      padding: 6px 14px; border-radius: 2px; transition: background .2s, opacity .2s;
+    }
+    .btn-save-stock:hover { background: #e84118; }
+    .btn-save-stock:disabled { opacity: .4; cursor: not-allowed; background: var(--red); }
+    .btn-stock-adj {
+      width: 28px; height: 28px; border-radius: 2px;
+      background: var(--panel); border: 1px solid var(--border);
+      color: var(--white); font-size: 16px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-stock-adj:hover { border-color: var(--red); color: var(--red); }
+
+    /* TOAST */
     .toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
+      position: fixed; bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(12px);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 22px;
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-family: var(--font-m);
-      font-size: 13px;
-      letter-spacing: .06em;
-      color: var(--white);
-      z-index: 999;
-      opacity: 0;
-      transition: opacity .3s, transform .3s;
-      pointer-events: none;
-      white-space: nowrap;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 22px; background: var(--dark); border: 1px solid var(--border);
+      border-radius: 4px; font-family: var(--font-m); font-size: 13px;
+      letter-spacing: .06em; color: var(--white); z-index: 999;
+      opacity: 0; transition: opacity .3s, transform .3s;
+      pointer-events: none; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast-ok  { border-color: rgba(39,174,96,.4); }
     .toast-err { border-color: rgba(192,57,43,.4); }
 
-    /* ── LOADING ── */
     #loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
-      font-family: var(--font-m);
-      font-size: 11px;
-      letter-spacing: .2em;
-      color: var(--muted);
-      animation: pulse 1.2s ease-in-out infinite;
+      display: flex; align-items: center; justify-content: center;
+      padding: 80px 0; font-family: var(--font-m); font-size: 11px;
+      letter-spacing: .2em; color: var(--muted); animation: pulse 1.2s ease-in-out infinite;
     }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+    .hidden { display: none !important; }
 
     @media (max-width: 600px) {
       #main { padding: 20px 16px; }
@@ -284,7 +244,6 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header>
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo"><span>M</span>-SPEC</div>
@@ -296,10 +255,10 @@
   </nav>
 </header>
 
-<!-- ── AUTH GATE ── -->
+<!-- AUTH GATE -->
 <div id="auth-gate">
   <h2>ADMIN ACCESS</h2>
-  <p>ใส่ Admin Key เพื่อเข้าจัดการรูปสินค้า</p>
+  <p>ใส่ Admin Key เพื่อเข้าจัดการสินค้า</p>
   <div class="key-form">
     <input type="password" id="admin-key-input" class="key-input" placeholder="Admin Key..." autocomplete="off"/>
     <button class="btn-red" id="btn-enter">ENTER</button>
@@ -307,23 +266,46 @@
   <p class="auth-error hidden" id="auth-err">Admin key ไม่ถูกต้อง</p>
 </div>
 
-<!-- ── MAIN PANEL ── -->
+<!-- MAIN PANEL -->
 <div id="main">
-  <h1 class="page-title">PART IMAGES</h1>
-  <p class="page-sub">คลิกที่รูปหรือกปุ่ม UPLOAD IMAGE เพื่ออัพโหลดรูปสินค้า · JPG, PNG, WEBP · สูงสุด 8MB</p>
 
+  <!-- SECTION 1: PART IMAGES -->
+  <h1 class="section-title">PART IMAGES</h1>
+  <p class="section-sub">คลิกที่รูปหรือกดปุ่ม UPLOAD IMAGE เพื่ออัพโหลดรูปสินค้า · JPG, PNG, WEBP · สูงสุด 8MB</p>
   <div id="loading">LOADING PARTS...</div>
   <div class="parts-grid" id="parts-grid" style="display:none"></div>
+
+  <hr class="section-divider"/>
+
+  <!-- SECTION 2: STOCK MANAGEMENT -->
+  <h2 class="section-title">STOCK MANAGEMENT</h2>
+  <p class="section-sub">อัพเดตจำนวนสต็อกสินค้าแต่ละรายการ — กดปุ่ม + / − หรือพิมพ์ตัวเลขแล้วกด SAVE</p>
+  <div class="stock-table-wrap">
+    <table id="stock-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>CATEGORY</th>
+          <th>PRODUCT NAME</th>
+          <th>PRICE</th>
+          <th>STATUS</th>
+          <th>STOCK QTY</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody id="stock-tbody"></tbody>
+    </table>
+  </div>
+
 </div>
 
-<!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
 
 <script>
-  // ─── STATE ───────────────────────────────────────────────────────────────
   let _adminKey = '';
+  let _parts    = [];
 
-  // ─── TOAST ───────────────────────────────────────────────────────────────
+  // ── TOAST ──────────────────────────────────────────────────────────────────
   function toast(msg, ok = true) {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -331,59 +313,38 @@
     setTimeout(() => el.classList.remove('show'), 3000);
   }
 
-  // ─── AUTH GATE ────────────────────────────────────────────────────────────
+  // ── AUTH ───────────────────────────────────────────────────────────────────
   async function tryLogin() {
     const key = document.getElementById('admin-key-input').value.trim();
     if (!key) return;
-
-    // ทดสอบ key โดยเรียก admin API
-    const res = await fetch('/api/admin/parts', {
-      headers: { 'x-admin-key': key }
-    });
-
-    if (!res.ok) {
-      document.getElementById('auth-err').classList.remove('hidden');
-      return;
-    }
-
+    const res = await fetch('/api/admin/parts', { headers: { 'x-admin-key': key } });
+    if (!res.ok) { document.getElementById('auth-err').classList.remove('hidden'); return; }
     _adminKey = key;
     sessionStorage.setItem('mspec_admin_key', key);
-    document.getElementById('auth-gate').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
+    document.getElementById('auth-gate').style.display  = 'none';
+    document.getElementById('main').style.display       = 'block';
     document.getElementById('btn-logout').style.display = 'inline-block';
     document.getElementById('auth-err').classList.add('hidden');
-
     const data = await res.json();
-    renderParts(data.parts || []);
+    _parts = data.parts || [];
+    renderParts(_parts);
+    renderStockTable(_parts);
   }
-
   document.getElementById('btn-enter').addEventListener('click', tryLogin);
-  document.getElementById('admin-key-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') tryLogin();
-  });
-
+  document.getElementById('admin-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
   document.getElementById('btn-logout').addEventListener('click', () => {
-    _adminKey = '';
-    sessionStorage.removeItem('mspec_admin_key');
-    location.reload();
+    _adminKey = ''; sessionStorage.removeItem('mspec_admin_key'); location.reload();
   });
 
-  // ─── RENDER PARTS ─────────────────────────────────────────────────────────
+  // ── RENDER PARTS GRID ──────────────────────────────────────────────────────
   function renderParts(parts) {
     const loading = document.getElementById('loading');
     const grid    = document.getElementById('parts-grid');
     loading.style.display = 'none';
     grid.style.display    = 'grid';
 
-    if (!parts.length) {
-      grid.innerHTML = '<p style="color:#888;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.1em">ไม่พบสินค้า</p>';
-      return;
-    }
-
-    grid.innerHTML = parts.map(p => `
+    const partCards = parts.map(p => `
       <div class="part-admin-card" id="card-${p.id}">
-
-        <!-- รูป — คลิกเพื่อเลือกไฟล์ -->
         <div class="part-img-area" onclick="document.getElementById('file-${p.id}').click()">
           ${p.image_url
             ? `<img src="${p.image_url}?t=${Date.now()}" alt="${p.name}" id="img-${p.id}"/>`
@@ -394,8 +355,7 @@
                    <polyline points="21 15 16 10 5 21"/>
                  </svg>
                  <span>NO IMAGE</span>
-               </div>`
-          }
+               </div>`}
           <div class="part-img-overlay">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -409,97 +369,205 @@
             accept=".jpg,.jpeg,.png,.webp,.gif"
             onchange="uploadImage(${p.id}, this)"/>
         </div>
-
-        <!-- ข้อมูล -->
         <div class="part-admin-body">
           <p class="part-admin-cat">${p.category || 'PART'}</p>
           <p class="part-admin-name">${p.name}</p>
           <p class="part-admin-price">฿${Number(p.price).toLocaleString('th-TH')}</p>
           <div class="part-admin-actions">
-            <label class="btn-upload" for="file-${p.id}" onclick="event.stopPropagation()">
-              📁 UPLOAD IMAGE
-            </label>
-            ${p.image_url
-              ? `<button class="btn-remove-img" onclick="removeImage(${p.id})">✕ REMOVE</button>`
-              : ''
-            }
+            <label class="btn-upload" for="file-${p.id}" onclick="event.stopPropagation()">📁 UPLOAD IMAGE</label>
+            ${p.image_url ? `<button class="btn-remove-img" onclick="removeImage(${p.id})">✕ REMOVE</button>` : ''}
           </div>
         </div>
-      </div>
-    `).join('');
+      </div>`).join('');
+
+    // Add new product card at the end
+    const newCard = `
+      <div class="part-admin-card-new">
+        <div class="new-card-header">+ ADD NEW PRODUCT</div>
+        <div class="new-card-body">
+          <input class="new-input" id="new-name"        placeholder="Product Name *" />
+          <input class="new-input" id="new-description" placeholder="Description" />
+          <input class="new-input" id="new-category"    placeholder="Category (e.g. Turbo)" />
+          <div class="new-input-row">
+            <input class="new-input" id="new-price" type="number" placeholder="Price (฿) *" min="0"/>
+            <input class="new-input" id="new-stock" type="number" placeholder="Stock qty"  min="0" value="0"/>
+          </div>
+          <button class="btn-add-part" onclick="addNewPart()">+ ADD PRODUCT</button>
+        </div>
+      </div>`;
+
+    grid.innerHTML = partCards + newCard;
   }
 
-  // ─── UPLOAD IMAGE ─────────────────────────────────────────────────────────
+  // ── RENDER STOCK TABLE ─────────────────────────────────────────────────────
+  function renderStockTable(parts) {
+    const tbody = document.getElementById('stock-tbody');
+    tbody.innerHTML = parts.map(p => {
+      const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+      const stockLabel = p.stock > 5 ? 'IN STOCK'  : p.stock > 0 ? `LOW (${p.stock})` : 'OUT OF STOCK';
+      return `
+        <tr id="row-${p.id}">
+          <td class="td-id">#${p.id}</td>
+          <td class="td-cat">${p.category || '—'}</td>
+          <td class="td-name">${p.name}</td>
+          <td class="td-price">฿${Number(p.price).toLocaleString('th-TH')}</td>
+          <td><span class="stock-badge ${stockClass}" id="badge-${p.id}">${stockLabel}</span></td>
+          <td>
+            <div class="stock-input-wrap">
+              <button class="btn-stock-adj" onclick="adjustStock(${p.id}, -1)">−</button>
+              <input class="stock-input" type="number" min="0" value="${p.stock}"
+                id="stock-val-${p.id}"
+                onchange="markDirty(${p.id})"
+                oninput="markDirty(${p.id})"/>
+              <button class="btn-stock-adj" onclick="adjustStock(${p.id}, 1)">+</button>
+            </div>
+          </td>
+          <td>
+            <button class="btn-save-stock" id="save-${p.id}"
+              onclick="saveStock(${p.id})" disabled>
+              SAVE
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── STOCK HELPERS ──────────────────────────────────────────────────────────
+  function markDirty(partId) {
+    document.getElementById(`save-${partId}`).disabled = false;
+  }
+
+  function adjustStock(partId, delta) {
+    const input = document.getElementById(`stock-val-${partId}`);
+    const newVal = Math.max(0, (parseInt(input.value) || 0) + delta);
+    input.value = newVal;
+    markDirty(partId);
+  }
+
+  async function saveStock(partId) {
+    const input = document.getElementById(`stock-val-${partId}`);
+    const stock = parseInt(input.value);
+    if (isNaN(stock) || stock < 0) { toast('กรอกตัวเลขที่ถูกต้อง', false); return; }
+
+    const btn = document.getElementById(`save-${partId}`);
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      const res  = await fetch(`/api/admin/parts/${partId}/stock`, {
+        method:  'PATCH',
+        headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ stock })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      // Update badge
+      const badge      = document.getElementById(`badge-${partId}`);
+      const stockClass = stock > 5 ? 'stock-ok' : stock > 0 ? 'stock-low' : 'stock-out';
+      const stockLabel = stock > 5 ? 'IN STOCK' : stock > 0 ? `LOW (${stock})` : 'OUT OF STOCK';
+      badge.className   = `stock-badge ${stockClass}`;
+      badge.textContent = stockLabel;
+
+      btn.textContent = 'SAVED ✓';
+      toast(`อัพเดตสต็อก ${stock} ชิ้น ✓`);
+      setTimeout(() => { btn.textContent = 'SAVE'; }, 2000);
+    } catch (err) {
+      toast(err.message || 'บันทึกไม่สำเร็จ', false);
+      btn.disabled = false;
+      btn.textContent = 'SAVE';
+    }
+  }
+
+  // ── ADD NEW PART ───────────────────────────────────────────────────────────
+  async function addNewPart() {
+    const name        = document.getElementById('new-name').value.trim();
+    const description = document.getElementById('new-description').value.trim();
+    const category    = document.getElementById('new-category').value.trim();
+    const price       = parseFloat(document.getElementById('new-price').value);
+    const stock       = parseInt(document.getElementById('new-stock').value) || 0;
+
+    if (!name)        { toast('กรุณากรอกชื่อสินค้า', false); return; }
+    if (!price || price <= 0) { toast('กรุณากรอกราคา', false); return; }
+
+    try {
+      const res  = await fetch('/api/admin/parts', {
+        method:  'POST',
+        headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ name, description, category, price, stock })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      toast(`เพิ่มสินค้า "${name}" เรียบร้อย ✓`);
+
+      // Clear form
+      ['new-name','new-description','new-category','new-price','new-stock']
+        .forEach(id => { document.getElementById(id).value = id === 'new-stock' ? '0' : ''; });
+
+      // Reload parts list
+      const partsRes = await fetch('/api/admin/parts', { headers: { 'x-admin-key': _adminKey } });
+      const partsData = await partsRes.json();
+      _parts = partsData.parts || [];
+      renderParts(_parts);
+      renderStockTable(_parts);
+    } catch (err) {
+      toast(err.message || 'เพิ่มสินค้าไม่สำเร็จ', false);
+    }
+  }
+
+  // ── UPLOAD IMAGE ───────────────────────────────────────────────────────────
   async function uploadImage(partId, input) {
     if (!input.files.length) return;
-
     const file = input.files[0];
-    if (file.size > 8 * 1024 * 1024) {
-      toast('ไฟล์ใหญ่เกิน 8MB', false);
-      return;
-    }
+    if (file.size > 8 * 1024 * 1024) { toast('ไฟล์ใหญ่เกิน 8MB', false); return; }
 
     const card = document.getElementById(`card-${partId}`);
     card.classList.add('card-uploading');
-
     const form = new FormData();
     form.append('image', file);
 
     try {
       const res  = await fetch(`/api/admin/parts/${partId}/image`, {
-        method:  'POST',
-        headers: { 'x-admin-key': _adminKey },
-        body:    form
+        method: 'POST', headers: { 'x-admin-key': _adminKey }, body: form
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Upload failed');
 
-      // อัพเดตรูปใน DOM ทันที ไม่ต้อง reload
-      const imgArea = card.querySelector('.part-img-area');
       let imgEl = document.getElementById(`img-${partId}`);
-
       if (imgEl.tagName === 'DIV') {
-        // เปลี่ยน placeholder → img
         imgEl.outerHTML = `<img src="${data.image_url}?t=${Date.now()}" alt="" id="img-${partId}" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
       } else {
         imgEl.src = `${data.image_url}?t=${Date.now()}`;
       }
-
-      // เพิ่มปุ่ม REMOVE ถ้ายังไม่มี
       const actions = card.querySelector('.part-admin-actions');
       if (!actions.querySelector('.btn-remove-img')) {
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'btn-remove-img';
-        removeBtn.textContent = '✕ REMOVE';
-        removeBtn.onclick = () => removeImage(partId);
-        actions.appendChild(removeBtn);
+        const btn = document.createElement('button');
+        btn.className = 'btn-remove-img';
+        btn.textContent = '✕ REMOVE';
+        btn.onclick = () => removeImage(partId);
+        actions.appendChild(btn);
       }
-
       toast(`อัพโหลดรูปสำเร็จ ✓`);
     } catch (err) {
       toast(err.message || 'อัพโหลดล้มเหลว', false);
     } finally {
       card.classList.remove('card-uploading');
-      input.value = ''; // reset input
+      input.value = '';
     }
   }
 
-  // ─── REMOVE IMAGE ─────────────────────────────────────────────────────────
+  // ── REMOVE IMAGE ───────────────────────────────────────────────────────────
   async function removeImage(partId) {
     if (!confirm('ลบรูปนี้ออก?')) return;
-
     try {
       const res = await fetch(`/api/admin/parts/${partId}/image`, {
-        method:  'DELETE',
-        headers: { 'x-admin-key': _adminKey }
+        method: 'DELETE', headers: { 'x-admin-key': _adminKey }
       });
       if (!res.ok) throw new Error('Delete failed');
 
       const card  = document.getElementById(`card-${partId}`);
       const imgEl = document.getElementById(`img-${partId}`);
-
-      // เปลี่ยน img → placeholder
       imgEl.outerHTML = `
         <div class="part-img-placeholder" id="img-${partId}">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -509,23 +577,16 @@
           </svg>
           <span>NO IMAGE</span>
         </div>`;
-
       card.querySelector('.btn-remove-img')?.remove();
       toast('ลบรูปเรียบร้อย');
-    } catch {
-      toast('ลบรูปล้มเหลว', false);
-    }
+    } catch { toast('ลบรูปล้มเหลว', false); }
   }
 
-  // ─── AUTO-LOGIN จาก session ────────────────────────────────────────────────
+  // ── AUTO-LOGIN ─────────────────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', async () => {
     const saved = sessionStorage.getItem('mspec_admin_key');
-    if (saved) {
-      document.getElementById('admin-key-input').value = saved;
-      await tryLogin();
-    }
+    if (saved) { document.getElementById('admin-key-input').value = saved; await tryLogin(); }
   });
 </script>
-
 </body>
 </html>
