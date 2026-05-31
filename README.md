@@ -318,7 +318,9 @@ This project implements all 10 graded criteria from the 960121 course:
 
 ```
 main        ← production-ready, submitted code only
-  └── windsurf   ← team development branch
+  ├── windsurf   ← Lead Architect (Backend/DevOps)
+  ├── flowill    ← Integration Engineer (API/State)
+  └── pond       ← UX Engineer (Frontend/Interaction)
 ```
 
 ### Conventional Commits
