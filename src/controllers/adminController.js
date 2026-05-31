@@ -12,33 +12,47 @@ async function updateStatus(req, res, next) {
   try {
     const orderId = parseInt(req.params.id);
     const { status } = req.body;
-
-    if (isNaN(orderId)) {
-      return res.status(400).json({ error: 'Invalid order ID' });
-    }
-    if (!status) {
-      return res.status(400).json({ error: 'status is required' });
-    }
-
+    if (isNaN(orderId)) return res.status(400).json({ error: 'Invalid order ID' });
+    if (!status)        return res.status(400).json({ error: 'status is required' });
     const result = updateOrderStatus(orderId, status);
-    return res.status(200).json({
-      message: `Order status updated to "${status}"`,
-      ...result
-    });
-  } catch (err) {
-    next(err);
-  }
+    return res.status(200).json({ message: `Order status updated to "${status}"`, ...result });
+  } catch (err) { next(err); }
 }
 
-// ─── LIST ALL PARTS (admin) ───────────────────────────────────────────────────
+// ─── LIST ALL PARTS ───────────────────────────────────────────────────────────
 function getParts(req, res, next) {
   try {
-    const db    = getDb();
-    const parts = db.prepare('SELECT * FROM Parts ORDER BY id').all();
+    const parts = getDb().prepare('SELECT * FROM Parts ORDER BY id').all();
     res.json({ parts });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
+}
+
+// ─── ADD NEW PART ─────────────────────────────────────────────────────────────
+function addPart(req, res, next) {
+  try {
+    const { name, description, category, price, stock } = req.body;
+    if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
+
+    const result = getDb()
+      .prepare('INSERT INTO Parts (name, description, category, price, stock, image_url) VALUES (?, ?, ?, ?, ?, NULL)')
+      .run(name, description || '', category || '', Number(price), Number(stock) || 0);
+
+    res.status(201).json({ success: true, partId: result.lastInsertRowid });
+  } catch (err) { next(err); }
+}
+
+// ─── UPDATE STOCK ─────────────────────────────────────────────────────────────
+function updateStock(req, res, next) {
+  try {
+    const partId = parseInt(req.params.id);
+    const { stock } = req.body;
+    if (isNaN(partId))        return res.status(400).json({ error: 'Invalid part ID' });
+    if (stock === undefined)  return res.status(400).json({ error: 'stock is required' });
+    if (Number(stock) < 0)    return res.status(400).json({ error: 'stock cannot be negative' });
+
+    getDb().prepare('UPDATE Parts SET stock = ? WHERE id = ?').run(Number(stock), partId);
+    res.json({ success: true, partId, stock: Number(stock) });
+  } catch (err) { next(err); }
 }
 
 // ─── UPLOAD IMAGE ─────────────────────────────────────────────────────────────
@@ -50,19 +64,14 @@ function uploadImage(req, res, next) {
 
     const imageUrl = `/uploads/${req.file.filename}`;
     const db = getDb();
-
-    // Delete old file if exists
     const old = db.prepare('SELECT image_url FROM Parts WHERE id = ?').get(partId);
-    if (old?.image_url) {
+    if (old?.image_url && old.image_url.startsWith('/uploads/')) {
       const oldPath = path.join(__dirname, '../../public', old.image_url);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
-
     db.prepare('UPDATE Parts SET image_url = ? WHERE id = ?').run(imageUrl, partId);
     res.json({ success: true, image_url: imageUrl });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 }
 
 // ─── DELETE IMAGE ─────────────────────────────────────────────────────────────
@@ -73,15 +82,13 @@ function deleteImage(req, res, next) {
 
     const db  = getDb();
     const row = db.prepare('SELECT image_url FROM Parts WHERE id = ?').get(partId);
-    if (row?.image_url) {
+    if (row?.image_url && row.image_url.startsWith('/uploads/')) {
       const filePath = path.join(__dirname, '../../public', row.image_url);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      db.prepare('UPDATE Parts SET image_url = NULL WHERE id = ?').run(partId);
     }
+    db.prepare('UPDATE Parts SET image_url = NULL WHERE id = ?').run(partId);
     res.json({ success: true });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 }
 
-module.exports = { updateStatus, getParts, uploadImage, deleteImage };
+module.exports = { updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage };
