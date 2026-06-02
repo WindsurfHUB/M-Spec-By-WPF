@@ -61,7 +61,7 @@ function hideSlotError() {
 // =============================================
 // CONFIRM BOOKING → ADD TO CART
 // =============================================
-function confirmSlotBooking() {
+async function confirmSlotBooking() {
   if (!_selectedSlot) return;
 
   const token = localStorage.getItem('token');
@@ -80,16 +80,45 @@ function confirmSlotBooking() {
     return;
   }
 
-const res = await fetch('/api/bookings', {
-  method: 'POST',
-  headers: { 'Authorization': `Bearer ${token}` },
-  body: JSON.stringify({ slotId, carDetails })
-});
-window.location.href = 'index.html#my-bookings';
-  // เปิด cart sidebar
-  setTimeout(() => {
-    if (typeof openCart === 'function') openCart();
-  }, 300);
+  // Direct Booking API Call
+  const confirmBtn = document.querySelector('#slot-booking-modal .btn-primary');
+  if (confirmBtn) confirmBtn.disabled = true;
+
+  try {
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        slotId: _selectedSlot.id,
+        carDetails: carDetails
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'จองคิวไม่สำเร็จ กรุณาลองใหม่');
+    }
+
+    if (typeof showToast === 'function') {
+      showToast(`จอง Dyno Session ${_selectedSlot.date} สำเร็จแล้ว ✓`);
+    }
+
+    closeSlotModal();
+
+    // Refresh slots globally to reflect capacity reduction
+    if (typeof fetchSlots === 'function') {
+      await fetchSlots();
+    }
+
+  } catch (err) {
+    showSlotError(err.message);
+  } finally {
+    if (confirmBtn) confirmBtn.disabled = false;
+  }
 }
 
 // =============================================

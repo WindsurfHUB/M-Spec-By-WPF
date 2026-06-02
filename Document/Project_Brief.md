@@ -34,6 +34,7 @@ M-Spec-By-WPF/
 │   │   ├── slotsRoutes.js
 │   │   ├── bookingRoutes.js
 │   │   ├── orderRoutes.js
+│   │   ├── statsRoutes.js      # dynamic stats for UI
 │   │   └── adminRoutes.js      # multer + adminGuard + all admin endpoints
 │   ├── controllers/
 │   │   ├── authController.js
@@ -89,7 +90,7 @@ Seed data: 8 rare car parts with `/images/` paths + 42 dyno slots (14 days × 3 
 
 ### ✅ Phase 3 — Service Layer
 
-**`authService.js`** — bcrypt hash/verify, JWT sign/verify, registerUser (duplicate check), loginUser (same error for bad email/password), getUserById
+**`authService.js`** — bcrypt hash/verify, strict email format regex validation, JWT sign/verify, registerUser (duplicate check), loginUser, getUserById
 
 **`catalogService.js`** — getAllParts(filters: keyword/category/minPrice/maxPrice), getAllSlots(), getPartById()
 
@@ -130,11 +131,12 @@ New endpoints in `adminRoutes.js` (protected by `X-Admin-Key`):
 
 ## 🔌 INTEGRATION ENGINEER (API/State)
 
-### Files
-- `auth.js` — register/login fetch, JWT stored in localStorage, `initAuth()` hydration on page load
-- `catalog.js` — fetchParts(filters), fetchSlots(), fetchOrders() with Bearer header
-- `cart.js` — `cartState[]` single source of truth, JSON.stringify/parse to localStorage
-- `checkout.js` — POST `/api/orders` with `{ items: [{ partId, quantity }] }` — never sends price
+### ✅ Phase 6 — Integration & State Management
+- [x] Fetch endpoints (`catalog.js`, `statsRoutes.js`) — `GET /api/parts`, `GET /api/slots`, `GET /api/stats`
+- [x] Single Source of Truth (`cart.js`) — `cartState` array, `addToCart`, `updateQuantity`, `removeFromCart`
+- [x] Hydration & Cleanup (`cart.js`, `auth.js`) — `localStorage.getItem`, clean up stale bookings, login restore
+- [x] API Gatekeeper (`checkout.js`, `booking-page.js`) — `POST /api/orders` (parts only), direct `POST /api/bookings` bypassing cart
+- [x] Dynamic UI data mapping — Pass JSON to `renderParts`, `renderSlots`, `renderRecommended`, `renderOrdersList`
 
 ### Key Rules
 - Never calculate prices on frontend — send `partId + quantity`, display what backend returns

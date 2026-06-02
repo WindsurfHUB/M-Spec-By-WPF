@@ -109,12 +109,12 @@ M-Spec-By-WPF/
 │   ├── css/
 │   │   └── style.css
 │   └── js/
-│       ├── main.js                 # renderParts(), renderSlots(), renderCart(), debounce
-│       ├── auth.js                 # login/register fetch + JWT localStorage hydration
-│       ├── cart.js                 # cartState[] — single source of truth + localStorage
+│       ├── main.js                 # renderParts(), renderSlots(), renderRecommended(), renderCart(), fetchStats()
+│       ├── auth.js                 # login/register fetch, email validation + JWT localStorage hydration
+│       ├── cart.js                 # cartState[] — single source of truth, cleanup old bookings
 │       ├── catalog.js              # all fetch() calls to the API
 │       ├── checkout.js             # POST /api/orders — never sends price from client
-│       ├── booking-page.js         # booking.html — slot selection + car details modal
+│       ├── booking-page.js         # POST /api/bookings directly (bypassing cart), slot selection modal
 │       └── orders-page.js          # orders.html — merged orders + bookings history
 │
 ├── src/                            # Backend (Lead Architect)
@@ -124,6 +124,7 @@ M-Spec-By-WPF/
 │   │   ├── slotsRoutes.js          # GET /api/slots
 │   │   ├── bookingRoutes.js        # POST/GET /api/bookings, PATCH cancel
 │   │   ├── orderRoutes.js          # POST/GET /api/orders, GET /api/orders/:id
+│   │   ├── statsRoutes.js          # GET /api/stats for dynamic frontend numbers
 │   │   └── adminRoutes.js          # PATCH status, GET/POST parts, image upload/delete, stock
 │   ├── controllers/
 │   │   ├── authController.js
@@ -132,7 +133,7 @@ M-Spec-By-WPF/
 │   │   ├── orderController.js
 │   │   └── adminController.js      # updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage
 │   ├── services/
-│   │   ├── authService.js          # bcrypt, JWT sign/verify, registerUser, loginUser
+│   │   ├── authService.js          # bcrypt, strict email format regex, JWT sign/verify, register/login
 │   │   ├── catalogService.js       # getAllParts(filters), getAllSlots(), getPartById()
 │   │   ├── bookingService.js       # checkCapacity() in transaction, createBooking(), cancelBooking()
 │   │   └── orderService.js         # createOrder() ACID transaction, updateOrderStatus(), getOrderHistory()

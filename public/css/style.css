@@ -297,6 +297,71 @@ ul { list-style: none; }
 }
 
 /* =============================================
+   HERO RECOMMENDED
+   ============================================= */
+.hero-recommended {
+  position: absolute;
+  bottom: 40px;
+  right: 5vw;
+  width: 45%;
+  max-width: 600px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.rec-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  border-left: 2px solid var(--c-red);
+  padding-left: 8px;
+}
+
+.rec-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: slideSlow 20s linear infinite;
+}
+
+.rec-track:hover {
+  animation-play-state: paused;
+}
+
+.rec-item {
+  width: 120px;
+  height: 80px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.rec-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.rec-item:hover img {
+  transform: scale(1.1);
+}
+
+@keyframes slideSlow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 8px)); }
+}
+
+/* =============================================
    PAGE HERO — booking.html / orders.html
    ============================================= */
 .page-hero {
@@ -688,7 +753,24 @@ ul { list-style: none; }
   border-color: var(--c-red);
   transform: translateY(-2px);
 }
-.slot-card.slot-full { opacity: 0.4; pointer-events: none; }
+.slot-card.slot-full {
+  opacity: 0.6;
+  border-color: var(--c-red);
+  pointer-events: none;
+}
+.slot-badge-full {
+  background: var(--c-red);
+  color: var(--c-white);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 15px;
+  opacity: 0.9;
+}
 
 .slot-date {
   font-family: var(--font-mono);
