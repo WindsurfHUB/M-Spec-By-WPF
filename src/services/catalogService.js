@@ -25,6 +25,9 @@ const CatalogService = {
       } else if (catLower === 'brake' || catLower === 'brakes') {
         query += ' AND category = ?';
         params.push('Brakes');
+      } else if (catLower === 'intercooler') {
+        query += ' AND category = ?';
+        params.push('intercooler');
       } else if (catLower === 'engine') {
         // ในฐานข้อมูล เครื่องยนต์ถูกบันทึกแยกเป็น ECU และ Fuel System
         query += ' AND category IN (?, ?)';

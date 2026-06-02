@@ -133,7 +133,7 @@ function _seedParts(db) {
     ['Link G4X ECU',               'Standalone engine management system',        'ECU',        28000, 1,  '/images/Link_G4X_ECU.jpg'],
     ['Cusco Rear Strut Bar',       'Bolt-on rear chassis brace',                'Suspension',  4500, 4,  '/images/Cusco_Rear_Strut_Bar.jpg'],
     ['Project Mu HC800 Brake Pads','High-carbon compound, track-spec',          'Brakes',      3800, 6,  '/images/Project_Mu_HC800_Brake_Pads.jpg'],
-    ['Mishimoto Intercooler Kit',  'Full-face intercooler + pipe kit',           'Turbo',      18000, 2,  '/images/Mishimoto_Intercooler_Kit.jpg'],
+    ['Mishimoto Intercooler Kit',  'Full-face intercooler + pipe kit',           'intercooler',18000, 2,  '/images/Mishimoto_Intercooler_Kit.jpg'],
     ['Tomei Expreme Ti Exhaust',   'Titanium catback, -4kg vs stock',            'Exhaust',    35000, 1,  '/images/Tomei_Expreme_Ti_Exhaust.jpg'],
   ];
 
