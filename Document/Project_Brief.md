@@ -90,7 +90,7 @@ Seed data: 8 rare car parts with `/images/` paths + 42 dyno slots (14 days × 3 
 
 ### ✅ Phase 3 — Service Layer
 
-**`authService.js`** — bcrypt hash/verify, JWT sign/verify, registerUser (duplicate check), loginUser (same error for bad email/password), getUserById
+**`authService.js`** — bcrypt hash/verify, strict email format regex validation, JWT sign/verify, registerUser (duplicate check), loginUser, getUserById
 
 **`catalogService.js`** — getAllParts(filters: keyword/category/minPrice/maxPrice), getAllSlots(), getPartById()
 

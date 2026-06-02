@@ -110,7 +110,7 @@ M-Spec-By-WPF/
 │   │   └── style.css
 │   └── js/
 │       ├── main.js                 # renderParts(), renderSlots(), renderRecommended(), renderCart(), fetchStats()
-│       ├── auth.js                 # login/register fetch + JWT localStorage hydration
+│       ├── auth.js                 # login/register fetch, email validation + JWT localStorage hydration
 │       ├── cart.js                 # cartState[] — single source of truth, cleanup old bookings
 │       ├── catalog.js              # all fetch() calls to the API
 │       ├── checkout.js             # POST /api/orders — never sends price from client
@@ -133,7 +133,7 @@ M-Spec-By-WPF/
 │   │   ├── orderController.js
 │   │   └── adminController.js      # updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage
 │   ├── services/
-│   │   ├── authService.js          # bcrypt, JWT sign/verify, registerUser, loginUser
+│   │   ├── authService.js          # bcrypt, strict email format regex, JWT sign/verify, register/login
 │   │   ├── catalogService.js       # getAllParts(filters), getAllSlots(), getPartById()
 │   │   ├── bookingService.js       # checkCapacity() in transaction, createBooking(), cancelBooking()
 │   │   └── orderService.js         # createOrder() ACID transaction, updateOrderStatus(), getOrderHistory()

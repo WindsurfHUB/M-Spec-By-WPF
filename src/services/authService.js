@@ -92,6 +92,13 @@ async function registerUser(username, email, plainPassword) {
     throw err;
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    const err = new Error('Invalid email format');
+    err.status = 400;
+    throw err;
+  }
+
   if (plainPassword.length < 6) {
     const err = new Error('Password must be at least 6 characters');
     err.status = 400;
