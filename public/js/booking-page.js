@@ -80,33 +80,12 @@ function confirmSlotBooking() {
     return;
   }
 
-  // Add to cart
-  if (typeof CartService !== 'undefined') {
-    CartService.addToCart({
-      id:         _selectedSlot.id,
-      name:       `Dyno Session — ${_selectedSlot.date} ${_selectedSlot.time}`,
-      price:      1500,
-      quantity:   1,
-      type:       'booking',
-      carDetails: carDetails
-    });
-  }
-
-  // อัพเดต slot card ให้ feedback
-  const slotCard = document.querySelector(`.slot-card[data-slot-id="${_selectedSlot.id}"]`);
-  const bookBtn  = slotCard?.querySelector('.btn-book-slot');
-  if (bookBtn) {
-    bookBtn.textContent = 'ADDED ✓';
-    bookBtn.disabled = true;
-    bookBtn.style.background = '#27ae60';
-  }
-
-  if (typeof showToast === 'function') {
-    showToast(`เพิ่ม Dyno Session ${_selectedSlot.date} ลงตะกร้าแล้ว`);
-  }
-
-  closeSlotModal();
-
+const res = await fetch('/api/bookings', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ slotId, carDetails })
+});
+window.location.href = 'index.html#my-bookings';
   // เปิด cart sidebar
   setTimeout(() => {
     if (typeof openCart === 'function') openCart();

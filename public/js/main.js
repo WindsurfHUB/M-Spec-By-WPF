@@ -117,127 +117,13 @@ function renderParts(parts) {
 // แสดงแค่ "จองวันไหน + เวลา + สถานะ"
 // =============================================
 function renderBookingSummary(bookings) {
-  const container = document.getElementById('bookings-container');
-  if (!container) return;
+  // logic ยกเลิก 1 วัน
+const hoursElapsed = (now - created) / (1000 * 60 * 60);
+const canCancel    = isPending && hoursElapsed <= 24;
+const hoursLeft    = Math.ceil(24 - hoursElapsed);
 
-  // ซ่อน login prompt ถ้า render ได้
-  document.getElementById('bookings-login-prompt')?.classList.add('hidden');
-
-  if (!bookings || bookings.length === 0) {
-    container.innerHTML = `
-      <p class="bookings-empty-msg">
-        ยังไม่มีการจอง Dyno<br/>
-        <a href="booking.html" style="color:var(--c-red);text-decoration:underline;font-size:12px;">จองสล็อตแรกของคุณ →</a>
-      </p>`;
-    return;
-  }
-
-  container.innerHTML = bookings.map(b => {
-    const date = new Date(`${b.slot_date}T${b.slot_time || '09:00'}`);
-    const dateStr = date.toLocaleDateString('th-TH', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-    const status = b.status || 'Pending';
-    const statusClass = status === 'confirmed' || status === 'Confirmed'
-      ? 'bsc-status-confirmed' : 'bsc-status-pending';
-
-    return `
-      <div class="booking-summary-card">
-        <div class="bsc-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-        </div>
-        <div class="bsc-info">
-          <p class="bsc-date">${dateStr}</p>
-          <p class="bsc-time">${timeStr}</p>
-          ${b.car_details ? `<p class="bsc-car">🚗 ${b.car_details}</p>` : ''}
-        </div>
-        <span class="bsc-status ${statusClass}">${status.toUpperCase()}</span>
-      </div>`;
-  }).join('');
-}
-
-// =============================================
-// RENDER SLOTS — used by booking-page.js
-// =============================================
-function renderSlots(slots) {
-  const container = document.getElementById('slots-container');
-  if (!container) return;
-
-  if (!slots || slots.length === 0) {
-    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตว่างในขณะนี้</p>`;
-    return;
-  }
-
-  // Filter: tomorrow (today+1) through today+7
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const endDay = new Date(today);
-  endDay.setDate(today.getDate() + 7);
-
-  const filtered = slots.filter(slot => {
-    const d = new Date(slot.slot_date);
-    return d >= tomorrow && d <= endDay;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตในช่วง 7 วันข้างหน้า</p>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(slot => {
-    const isFull    = slot.current_bookings >= slot.max_capacity;
-    const filled    = slot.current_bookings || 0;
-    const max       = slot.max_capacity || 3;
-    const available = max - filled;
-
-    const date = slot.slot_date && slot.slot_time
-      ? new Date(`${slot.slot_date}T${slot.slot_time}`)
-      : new Date(slot.slot_datetime || slot.date);
-    const dateStr = date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
-    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-
-    const dots = Array.from({ length: max }, (_, i) =>
-      `<span class="slot-dot ${i < filled ? 'filled' : ''}"></span>`
-    ).join('');
-
-    return `
-      <div class="slot-card ${isFull ? 'slot-full' : ''}" data-slot-id="${slot.id}">
-        <p class="slot-date">${dateStr}</p>
-        <p class="slot-time">${timeStr}</p>
-        <div class="slot-capacity">
-          <div class="slot-dots">${dots}</div>
-          <span class="slot-capacity-text">${available}/${max} ว่าง</span>
-        </div>
-        ${isFull
-          ? `<div class="slot-badge-full">FULLY BOOKED</div>`
-          : `<button class="btn-book-slot btn-primary"
-               data-slot-id="${slot.id}"
-               data-date="${dateStr}"
-               data-time="${timeStr}"
-               data-avail="${available}/${max}">
-               BOOK SLOT
-             </button>`
-        }
-      </div>`;
-  }).join('');
-}
-// =============================================
-// DEBOUNCE
-// =============================================
-function debounce(fn, delay = 400) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
+// PATCH /api/bookings/:id/cancel
+await fetch(`/api/bookings/${bookingId}/cancel`, { method: 'PATCH' })
 }
 
 // =============================================
@@ -407,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCartSidebarEvents();
   initPartsEvents();
   initFilterEvents();
+  initRecommendedTicker();
 
   renderCart(CartService.getCartItems());
 
@@ -416,6 +303,41 @@ document.addEventListener('DOMContentLoaded', () => {
   // booking summary — index.html เท่านั้น
   initBookingSummary();
 });
+async function initRecommendedTicker() {
+  const ticker = document.getElementById('rec-ticker');
+  if (!ticker) return;
+
+  try {
+    const res  = await fetch('/api/parts');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const parts = (data.parts || data).filter(p => p.image_url);
+
+    if (!parts.length) {
+      document.querySelector('.hero-recommended')?.remove();
+      return;
+    }
+
+    const makeCard = (p) => `
+      <div class="rec-item" data-part-id="${p.id}" title="${p.name}">
+        <img src="${p.image_url}" alt="${p.name}" loading="lazy" draggable="false"/>
+        <div class="rec-item-label">${p.name}</div>
+      </div>`;
+
+    ticker.innerHTML = [...parts, ...parts, ...parts].map(makeCard).join('');
+
+    const duration = Math.max(18, parts.length * 3.5);
+    ticker.style.animationDuration = `${duration}s`;
+
+    ticker.addEventListener('click', (e) => {
+      if (e.target.closest('.rec-item'))
+        document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+  } catch {
+    document.querySelector('.hero-recommended')?.style.setProperty('display','none');
+  }
+}
 
 // expose globals
 window.openCart  = openCart;
