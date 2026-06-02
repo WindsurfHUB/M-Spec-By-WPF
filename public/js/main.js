@@ -11,8 +11,8 @@
 // =============================================
 function renderCart(cartState) {
   const container = document.getElementById('cart-items');
-  const totalEl   = document.getElementById('cart-total');
-  const countEl   = document.getElementById('cart-count');
+  const totalEl = document.getElementById('cart-total');
+  const countEl = document.getElementById('cart-count');
   if (!container) return;
 
   const count = cartState.reduce((s, i) => s + i.quantity, 0);
@@ -78,18 +78,18 @@ function renderParts(parts) {
 
   container.innerHTML = parts.map(part => {
     const stockClass = part.stock > 5 ? 'badge-in'
-                     : part.stock > 0 ? 'badge-low'
-                     : 'badge-out';
-    const stockText  = part.stock > 5 ? 'IN STOCK'
-                     : part.stock > 0 ? `ONLY ${part.stock} LEFT`
-                     : 'OUT OF STOCK';
+      : part.stock > 0 ? 'badge-low'
+        : 'badge-out';
+    const stockText = part.stock > 5 ? 'IN STOCK'
+      : part.stock > 0 ? `ONLY ${part.stock} LEFT`
+        : 'OUT OF STOCK';
     return `
       <div class="part-card" data-part-id="${part.id}">
         <div class="part-card-img">
           ${part.image_url
-            ? `<img src="${part.image_url}" alt="${part.name}" loading="lazy"/>`
-            : `<span>${part.category || 'PART'}</span>`
-          }
+        ? `<img src="${part.image_url}" alt="${part.name}" loading="lazy"/>`
+        : `<span>${part.category || 'PART'}</span>`
+      }
         </div>
         <div class="part-card-body">
           <p class="part-card-cat">${part.category || ''}</p>
@@ -118,7 +118,7 @@ function renderParts(parts) {
 function renderRecommended(parts) {
   const track = document.getElementById('recommended-track');
   if (!track || track.children.length > 0) return;
-  
+
   // Get up to 5 parts that have images
   const recParts = parts.filter(p => p.image_url).slice(0, 5);
   if (recParts.length === 0) {
@@ -133,10 +133,10 @@ function renderRecommended(parts) {
   `).join('');
 
   // Duplicate for seamless infinite scrolling
-  track.innerHTML = html + html; 
+  track.innerHTML = html + html;
 }
 
-window.searchRecommended = function(name) {
+window.searchRecommended = function (name) {
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.value = name;
@@ -150,13 +150,127 @@ window.searchRecommended = function(name) {
 // แสดงแค่ "จองวันไหน + เวลา + สถานะ"
 // =============================================
 function renderBookingSummary(bookings) {
-  // logic ยกเลิก 1 วัน
-const hoursElapsed = (now - created) / (1000 * 60 * 60);
-const canCancel    = isPending && hoursElapsed <= 24;
-const hoursLeft    = Math.ceil(24 - hoursElapsed);
+  const container = document.getElementById('bookings-container');
+  if (!container) return;
 
-// PATCH /api/bookings/:id/cancel
-await fetch(`/api/bookings/${bookingId}/cancel`, { method: 'PATCH' })
+  // ซ่อน login prompt ถ้า render ได้
+  document.getElementById('bookings-login-prompt')?.classList.add('hidden');
+
+  if (!bookings || bookings.length === 0) {
+    container.innerHTML = `
+      <p class="bookings-empty-msg">
+        ยังไม่มีการจอง Dyno<br/>
+        <a href="booking.html" style="color:var(--c-red);text-decoration:underline;font-size:12px;">จองสล็อตแรกของคุณ →</a>
+      </p>`;
+    return;
+  }
+
+  container.innerHTML = bookings.map(b => {
+    const date = new Date(`${b.slot_date}T${b.slot_time || '09:00'}`);
+    const dateStr = date.toLocaleDateString('th-TH', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const status = b.status || 'Pending';
+    const statusClass = status === 'confirmed' || status === 'Confirmed'
+      ? 'bsc-status-confirmed' : 'bsc-status-pending';
+
+    return `
+      <div class="booking-summary-card">
+        <div class="bsc-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="bsc-info">
+          <p class="bsc-date">${dateStr}</p>
+          <p class="bsc-time">${timeStr}</p>
+          ${b.car_details ? `<p class="bsc-car">🚗 ${b.car_details}</p>` : ''}
+        </div>
+        <span class="bsc-status ${statusClass}">${status.toUpperCase()}</span>
+      </div>`;
+  }).join('');
+}
+
+// =============================================
+// RENDER SLOTS — used by booking-page.js
+// =============================================
+function renderSlots(slots) {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+
+  if (!slots || slots.length === 0) {
+    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตว่างในขณะนี้</p>`;
+    return;
+  }
+
+  // Filter: tomorrow (today+1) through today+7
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const endDay = new Date(today);
+  endDay.setDate(today.getDate() + 7);
+
+  const filtered = slots.filter(slot => {
+    const d = new Date(slot.slot_date);
+    return d >= tomorrow && d <= endDay;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<p class="slots-empty">ไม่มีสล็อตในช่วง 7 วันข้างหน้า</p>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(slot => {
+    const isFull = slot.current_bookings >= slot.max_capacity;
+    const filled = slot.current_bookings || 0;
+    const max = slot.max_capacity || 3;
+    const available = max - filled;
+
+    const date = slot.slot_date && slot.slot_time
+      ? new Date(`${slot.slot_date}T${slot.slot_time}`)
+      : new Date(slot.slot_datetime || slot.date);
+    const dateStr = date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
+    const timeStr = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+    const dots = Array.from({ length: max }, (_, i) =>
+      `<span class="slot-dot ${i < filled ? 'filled' : ''}"></span>`
+    ).join('');
+
+    return `
+      <div class="slot-card ${isFull ? 'slot-full' : ''}" data-slot-id="${slot.id}">
+        <p class="slot-date">${dateStr}</p>
+        <p class="slot-time">${timeStr}</p>
+        <div class="slot-capacity">
+          <div class="slot-dots">${dots}</div>
+          <span class="slot-capacity-text">${available}/${max} ว่าง</span>
+        </div>
+        ${isFull
+        ? `<div class="slot-badge-full">FULLY BOOKED</div>`
+        : `<button class="btn-book-slot btn-primary"
+               data-slot-id="${slot.id}"
+               data-date="${dateStr}"
+               data-time="${timeStr}"
+               data-avail="${available}/${max}">
+               BOOK SLOT
+             </button>`
+      }
+      </div>`;
+  }).join('');
+}
+// =============================================
+// DEBOUNCE
+// =============================================
+function debounce(fn, delay = 400) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
 
 // =============================================
@@ -168,13 +282,13 @@ function initCartSidebarEvents() {
 
   sidebar.addEventListener('click', (e) => {
     const removeBtn = e.target.closest('.cart-item-remove');
-    const qtyBtn    = e.target.closest('.qty-btn');
+    const qtyBtn = e.target.closest('.qty-btn');
     if (removeBtn) {
       CartService.removeFromCart(Number(removeBtn.dataset.id));
       return;
     }
     if (qtyBtn) {
-      const id   = Number(qtyBtn.dataset.id);
+      const id = Number(qtyBtn.dataset.id);
       const item = CartService.getCartItems().find(i => i.id === id);
       if (!item) return;
       const newQty = qtyBtn.dataset.action === 'plus' ? item.quantity + 1 : item.quantity - 1;
@@ -215,9 +329,9 @@ function initPartsEvents() {
     if (!addBtn || addBtn.disabled) return;
 
     CartService.addToCart({
-      id:       Number(addBtn.dataset.partId),
-      name:     addBtn.dataset.name,
-      price:    Number(addBtn.dataset.price),
+      id: Number(addBtn.dataset.partId),
+      name: addBtn.dataset.name,
+      price: Number(addBtn.dataset.price),
       category: addBtn.dataset.category
     });
 
@@ -235,11 +349,11 @@ function initPartsEvents() {
 // =============================================
 function initFilterEvents() {
   const searchInput = document.getElementById('search-input');
-  const catFilter   = document.getElementById('filter-category');
+  const catFilter = document.getElementById('filter-category');
   const priceFilter = document.getElementById('filter-price');
 
   const applyFilters = () => {
-    const keyword  = searchInput?.value.trim() || '';
+    const keyword = searchInput?.value.trim() || '';
     const category = catFilter?.value || '';
     const priceVal = priceFilter?.value || '';
     let minPrice, maxPrice;
@@ -250,7 +364,7 @@ function initFilterEvents() {
   };
 
   if (searchInput) searchInput.addEventListener('input', debounce(applyFilters, 400));
-  if (catFilter)   catFilter.addEventListener('change', applyFilters);
+  if (catFilter) catFilter.addEventListener('change', applyFilters);
   if (priceFilter) priceFilter.addEventListener('change', applyFilters);
 }
 
@@ -326,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCartSidebarEvents();
   initPartsEvents();
   initFilterEvents();
-  initRecommendedTicker();
 
   renderCart(CartService.getCartItems());
 
@@ -335,45 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // booking summary — index.html เท่านั้น
   initBookingSummary();
-  
+
   // Fetch dynamic stats for hero section
   fetchStats();
 });
-async function initRecommendedTicker() {
-  const ticker = document.getElementById('rec-ticker');
-  if (!ticker) return;
-
-  try {
-    const res  = await fetch('/api/parts');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    const parts = (data.parts || data).filter(p => p.image_url);
-
-    if (!parts.length) {
-      document.querySelector('.hero-recommended')?.remove();
-      return;
-    }
-
-    const makeCard = (p) => `
-      <div class="rec-item" data-part-id="${p.id}" title="${p.name}">
-        <img src="${p.image_url}" alt="${p.name}" loading="lazy" draggable="false"/>
-        <div class="rec-item-label">${p.name}</div>
-      </div>`;
-
-    ticker.innerHTML = [...parts, ...parts, ...parts].map(makeCard).join('');
-
-    const duration = Math.max(18, parts.length * 3.5);
-    ticker.style.animationDuration = `${duration}s`;
-
-    ticker.addEventListener('click', (e) => {
-      if (e.target.closest('.rec-item'))
-        document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
-    });
-
-  } catch {
-    document.querySelector('.hero-recommended')?.style.setProperty('display','none');
-  }
-}
 
 // =============================================
 // FETCH DYNAMIC STATS
@@ -400,7 +478,7 @@ async function fetchStats() {
 }
 
 // expose globals
-window.openCart  = openCart;
+window.openCart = openCart;
 window.closeCart = closeCart;
 window.showToast = showToast;
 window.renderCart = renderCart;
