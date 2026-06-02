@@ -25,6 +25,9 @@ async function fetchParts({ keyword = '', category = '', minPrice, maxPrice } = 
     if (typeof renderParts === 'function') {
       renderParts(data.parts || data);
     }
+    if (typeof renderRecommended === 'function') {
+      renderRecommended(data.parts || data);
+    }
   } catch (err) {
     console.error('fetchParts error:', err);
     if (container) container.innerHTML = `<p class="parts-empty">โหลดสินค้าไม่สำเร็จ กรุณาลองใหม่</p>`;

@@ -109,12 +109,12 @@ M-Spec-By-WPF/
 │   ├── css/
 │   │   └── style.css
 │   └── js/
-│       ├── main.js                 # renderParts(), renderSlots(), renderCart(), debounce
+│       ├── main.js                 # renderParts(), renderSlots(), renderRecommended(), renderCart(), fetchStats()
 │       ├── auth.js                 # login/register fetch + JWT localStorage hydration
-│       ├── cart.js                 # cartState[] — single source of truth + localStorage
+│       ├── cart.js                 # cartState[] — single source of truth, cleanup old bookings
 │       ├── catalog.js              # all fetch() calls to the API
 │       ├── checkout.js             # POST /api/orders — never sends price from client
-│       ├── booking-page.js         # booking.html — slot selection + car details modal
+│       ├── booking-page.js         # POST /api/bookings directly (bypassing cart), slot selection modal
 │       └── orders-page.js          # orders.html — merged orders + bookings history
 │
 ├── src/                            # Backend (Lead Architect)
@@ -124,6 +124,7 @@ M-Spec-By-WPF/
 │   │   ├── slotsRoutes.js          # GET /api/slots
 │   │   ├── bookingRoutes.js        # POST/GET /api/bookings, PATCH cancel
 │   │   ├── orderRoutes.js          # POST/GET /api/orders, GET /api/orders/:id
+│   │   ├── statsRoutes.js          # GET /api/stats for dynamic frontend numbers
 │   │   └── adminRoutes.js          # PATCH status, GET/POST parts, image upload/delete, stock
 │   ├── controllers/
 │   │   ├── authController.js

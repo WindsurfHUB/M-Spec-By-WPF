@@ -113,6 +113,39 @@ function renderParts(parts) {
 }
 
 // =============================================
+// RENDER RECOMMENDED — index.html
+// =============================================
+function renderRecommended(parts) {
+  const track = document.getElementById('recommended-track');
+  if (!track || track.children.length > 0) return;
+  
+  // Get up to 5 parts that have images
+  const recParts = parts.filter(p => p.image_url).slice(0, 5);
+  if (recParts.length === 0) {
+    track.innerHTML = '';
+    return;
+  }
+
+  const html = recParts.map(part => `
+    <div class="rec-item" title="${part.name}" onclick="searchRecommended('${part.name.replace(/'/g, "\\'")}')">
+      <img src="${part.image_url}" alt="${part.name}" loading="lazy"/>
+    </div>
+  `).join('');
+
+  // Duplicate for seamless infinite scrolling
+  track.innerHTML = html + html; 
+}
+
+window.searchRecommended = function(name) {
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.value = name;
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    window.location.hash = '#catalog';
+  }
+}
+
+// =============================================
 // RENDER BOOKING SUMMARY — index.html only
 // แสดงแค่ "จองวันไหน + เวลา + สถานะ"
 // =============================================
@@ -415,7 +448,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // booking summary — index.html เท่านั้น
   initBookingSummary();
+  
+  // Fetch dynamic stats for hero section
+  fetchStats();
 });
+
+// =============================================
+// FETCH DYNAMIC STATS
+// =============================================
+async function fetchStats() {
+  const dynoEl = document.getElementById('stat-dyno');
+  const partsEl = document.getElementById('stat-parts');
+  if (!dynoEl && !partsEl) return;
+
+  try {
+    const res = await fetch('/api/stats');
+    if (res.ok) {
+      const data = await res.json();
+      if (dynoEl && data.dynoSessions !== undefined) {
+        dynoEl.textContent = `${data.dynoSessions}+`;
+      }
+      if (partsEl && data.rareParts !== undefined) {
+        partsEl.textContent = `${data.rareParts}+`;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch stats', err);
+  }
+}
 
 // expose globals
 window.openCart  = openCart;
