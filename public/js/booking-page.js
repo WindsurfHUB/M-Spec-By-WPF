@@ -61,7 +61,7 @@ function hideSlotError() {
 // =============================================
 // CONFIRM BOOKING → ADD TO CART
 // =============================================
-function confirmSlotBooking() {
+async function confirmSlotBooking() {
   if (!_selectedSlot) return;
 
   const token = localStorage.getItem('token');
@@ -80,37 +80,45 @@ function confirmSlotBooking() {
     return;
   }
 
-  // Add to cart
-  if (typeof CartService !== 'undefined') {
-    CartService.addToCart({
-      id:         _selectedSlot.id,
-      name:       `Dyno Session — ${_selectedSlot.date} ${_selectedSlot.time}`,
-      price:      1500,
-      quantity:   1,
-      type:       'booking',
-      carDetails: carDetails
+  // Direct Booking API Call
+  const confirmBtn = document.querySelector('#slot-booking-modal .btn-primary');
+  if (confirmBtn) confirmBtn.disabled = true;
+
+  try {
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        slotId: _selectedSlot.id,
+        carDetails: carDetails
+      })
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'จองคิวไม่สำเร็จ กรุณาลองใหม่');
+    }
+
+    if (typeof showToast === 'function') {
+      showToast(`จอง Dyno Session ${_selectedSlot.date} สำเร็จแล้ว ✓`);
+    }
+
+    closeSlotModal();
+
+    // Refresh slots globally to reflect capacity reduction
+    if (typeof fetchSlots === 'function') {
+      await fetchSlots();
+    }
+
+  } catch (err) {
+    showSlotError(err.message);
+  } finally {
+    if (confirmBtn) confirmBtn.disabled = false;
   }
-
-  // อัพเดต slot card ให้ feedback
-  const slotCard = document.querySelector(`.slot-card[data-slot-id="${_selectedSlot.id}"]`);
-  const bookBtn  = slotCard?.querySelector('.btn-book-slot');
-  if (bookBtn) {
-    bookBtn.textContent = 'ADDED ✓';
-    bookBtn.disabled = true;
-    bookBtn.style.background = '#27ae60';
-  }
-
-  if (typeof showToast === 'function') {
-    showToast(`เพิ่ม Dyno Session ${_selectedSlot.date} ลงตะกร้าแล้ว`);
-  }
-
-  closeSlotModal();
-
-  // เปิด cart sidebar
-  setTimeout(() => {
-    if (typeof openCart === 'function') openCart();
-  }, 300);
 }
 
 // =============================================

@@ -5,6 +5,13 @@
 // 🌟 1. Hydration Logic: ดึงข้อมูลตะกร้าเก่าจาก localStorage ทันทีที่โหลดไฟล์
 let cartState = JSON.parse(localStorage.getItem('cart')) || [];
 
+// Clean up old 'booking' items that were stuck in the cart before the refactor
+const originalLength = cartState.length;
+cartState = cartState.filter(item => item.type !== 'booking' && !(item.name && item.name.includes('Dyno Session')));
+if (cartState.length !== originalLength) {
+    localStorage.setItem('cart', JSON.stringify(cartState));
+}
+
 const CartService = {
     // 2. ฟังก์ชันเพิ่มสินค้าเข้าตะกร้า
     addToCart: (part) => {

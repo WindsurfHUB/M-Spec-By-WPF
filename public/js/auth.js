@@ -273,6 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailVal)) {
+                showLoginError('รูปแบบอีเมลไม่ถูกต้อง');
+                return;
+            }
+
             // Security: ป้องกัน Double Click / Race Conditions
             loginSubmitBtn.disabled = true;
 
@@ -305,6 +311,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Client-side Validation
             if (!nameVal || !emailVal || !passwordVal) {
                 showRegisterError('กรุณากรอกข้อมูลสำหรับการสมัครสมาชิกให้ครบทุกช่อง');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailVal)) {
+                showRegisterError('รูปแบบอีเมลไม่ถูกต้อง');
                 return;
             }
 

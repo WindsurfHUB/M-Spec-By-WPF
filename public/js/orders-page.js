@@ -65,7 +65,7 @@ function renderOrdersList(orders) {
     return `
       <div class="order-card ${borderClass}">
         <div>
-          <p class="order-id">#${String(order.id).padStart(5, '0')} · ${isBooking ? 'DYNO' : 'PARTS'}</p>
+          <p class="order-id">#${String(order.id || order.bookingId || 0).padStart(5, '0')} · ${isBooking ? 'DYNO' : 'PARTS'}</p>
           <p class="order-name">${typeLabel}</p>
           ${order.car_details ? `<p style="font-size:12px;color:#aaa;margin:4px 0;">🚗 ${order.car_details}</p>` : ''}
           <p class="order-date">${dateDisplay}</p>
