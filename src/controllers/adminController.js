@@ -90,5 +90,30 @@ function deleteImage(req, res, next) {
     res.json({ success: true });
   } catch (err) { next(err); }
 }
+// ─── DELETE PART ──────────────────────────────────────────────────────────────
+function deletePart(req, res, next) {
+  try {
+    const partId = parseInt(req.params.id);
+    if (isNaN(partId)) return res.status(400).json({ error: 'Invalid part ID' });
 
-module.exports = { updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage };
+    const db  = getDb();
+    
+    // Check if part exists and delete image if it has one
+    const row = db.prepare('SELECT image_url FROM Parts WHERE id = ?').get(partId);
+    if (row?.image_url && row.image_url.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '../../public', row.image_url);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    
+    // Delete the part from the database
+    const info = db.prepare('DELETE FROM Parts WHERE id = ?').run(partId);
+    
+    if (info.changes === 0) {
+      return res.status(404).json({ error: 'Part not found' });
+    }
+    
+    res.json({ success: true });
+  } catch (err) { next(err); }
+}
+
+module.exports = { updateStatus, getParts, addPart, updateStock, uploadImage, deleteImage, deletePart };
