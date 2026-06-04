@@ -1,120 +1,143 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>M-SPEC | Admin Panel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600&family=Barlow:wght@300;400&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600&family=Barlow:wght@300;400&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
 
-<header>
-  <div style="display:flex;align-items:center;gap:16px">
-    <div class="logo"><span>M</span>-SPEC</div>
-    <div class="header-badge">ADMIN PANEL</div>
-  </div>
-  <nav class="header-nav" style="display:flex;gap:8px">
-    <a href="index.html">← BACK TO SITE</a>
-    <button class="btn-red" id="btn-logout" style="display:none;font-size:11px;padding:6px 14px">LOGOUT</button>
-  </nav>
-</header>
+  <header>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="logo"><span>M</span>-SPEC</div>
+      <div class="header-badge">ADMIN PANEL</div>
+    </div>
+    <nav class="header-nav" style="display:flex;gap:8px">
+      <a href="index.html">← BACK TO SITE</a>
+      <button class="btn-red" id="btn-logout" style="display:none;font-size:11px;padding:6px 14px">LOGOUT</button>
+    </nav>
+  </header>
 
-<!-- AUTH GATE -->
-<div id="auth-gate">
-  <h2>ADMIN ACCESS</h2>
-  <p>ใส่ Admin Key เพื่อเข้าจัดการสินค้า</p>
-  <div class="key-form">
-    <input type="password" id="admin-key-input" class="key-input" placeholder="Admin Key..." autocomplete="off"/>
-    <button class="btn-red" id="btn-enter">ENTER</button>
-  </div>
-  <p class="auth-error hidden" id="auth-err">Admin key ไม่ถูกต้อง</p>
-</div>
-
-<!-- MAIN PANEL -->
-<div id="main">
-
-  <!-- SECTION 1: PART IMAGES -->
-  <h1 class="section-title">PART IMAGES</h1>
-  <p class="section-sub">คลิกที่รูปหรือกดปุ่ม UPLOAD IMAGE เพื่ออัพโหลดรูปสินค้า · JPG, PNG, WEBP · สูงสุด 8MB</p>
-  <div id="loading">LOADING PARTS...</div>
-  <div class="parts-grid" id="parts-grid" style="display:none"></div>
-
-  <hr class="section-divider"/>
-
-  <!-- SECTION 2: STOCK MANAGEMENT -->
-  <h2 class="section-title">STOCK MANAGEMENT</h2>
-  <p class="section-sub">อัพเดตจำนวนสต็อกสินค้าแต่ละรายการ — กดปุ่ม + / − หรือพิมพ์ตัวเลขแล้วกด SAVE</p>
-  <div class="stock-table-wrap">
-    <table id="stock-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>CATEGORY</th>
-          <th>PRODUCT NAME</th>
-          <th>PRICE</th>
-          <th>STATUS</th>
-          <th>STOCK QTY</th>
-          <th>ACTION</th>
-        </tr>
-      </thead>
-      <tbody id="stock-tbody"></tbody>
-    </table>
+  <!-- AUTH GATE -->
+  <div id="auth-gate">
+    <h2>ADMIN ACCESS</h2>
+    <p>ใส่ Admin Key เพื่อเข้าจัดการสินค้า</p>
+    <div class="key-form">
+      <input type="password" id="admin-key-input" class="key-input" placeholder="Admin Key..." autocomplete="off" />
+      <button class="btn-red" id="btn-enter">ENTER</button>
+    </div>
+    <p class="auth-error hidden" id="auth-err">Admin key ไม่ถูกต้อง</p>
   </div>
 
-</div>
+  <!-- MAIN PANEL -->
+  <div id="main">
 
-<div class="toast" id="toast"></div>
+    <!-- SECTION 1: PART IMAGES -->
+    <h1 class="section-title">PART IMAGES</h1>
+    <p class="section-sub">คลิกที่รูปหรือกดปุ่ม UPLOAD IMAGE เพื่ออัพโหลดรูปสินค้า · JPG, PNG, WEBP · สูงสุด 8MB</p>
+    <div id="loading">LOADING PARTS...</div>
+    <div class="parts-grid" id="parts-grid" style="display:none"></div>
 
-<script>
-  let _adminKey = '';
-  let _parts    = [];
+    <hr class="section-divider" />
 
-  // ── TOAST ──────────────────────────────────────────────────────────────────
-  function toast(msg, ok = true) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `toast ${ok ? 'toast-ok' : 'toast-err'} show`;
-    setTimeout(() => el.classList.remove('show'), 3000);
-  }
+    <!-- SECTION 2: STOCK MANAGEMENT -->
+    <h2 class="section-title">STOCK MANAGEMENT</h2>
+    <p class="section-sub">อัพเดตจำนวนสต็อกสินค้าแต่ละรายการ — กดปุ่ม + / − หรือพิมพ์ตัวเลขแล้วกด SAVE</p>
+    <div class="stock-table-wrap">
+      <table id="stock-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>CATEGORY</th>
+            <th>PRODUCT NAME</th>
+            <th>PRICE</th>
+            <th>STATUS</th>
+            <th>STOCK QTY</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="stock-tbody"></tbody>
+      </table>
+    </div>
 
-  // ── AUTH ───────────────────────────────────────────────────────────────────
-  async function tryLogin() {
-    const key = document.getElementById('admin-key-input').value.trim();
-    if (!key) return;
-    const res = await fetch('/api/admin/parts', { headers: { 'x-admin-key': key } });
-    if (!res.ok) { document.getElementById('auth-err').classList.remove('hidden'); return; }
-    _adminKey = key;
-    sessionStorage.setItem('mspec_admin_key', key);
-    document.getElementById('auth-gate').style.display  = 'none';
-    document.getElementById('main').style.display       = 'block';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('auth-err').classList.add('hidden');
-    const data = await res.json();
-    _parts = data.parts || [];
-    renderParts(_parts);
-    renderStockTable(_parts);
-  }
-  document.getElementById('btn-enter').addEventListener('click', tryLogin);
-  document.getElementById('admin-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    _adminKey = ''; sessionStorage.removeItem('mspec_admin_key'); location.reload();
-  });
+  </div>
 
-  // ── RENDER PARTS GRID ──────────────────────────────────────────────────────
-  function renderParts(parts) {
-    const loading = document.getElementById('loading');
-    const grid    = document.getElementById('parts-grid');
-    loading.style.display = 'none';
-    grid.style.display    = 'grid';
+  <div class="toast" id="toast"></div>
 
-    const partCards = parts.map(p => `
+  <!-- CONFIRM MODAL -->
+  <div id="confirm-modal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+    <div
+      style="background:#1a1a1a; border:1px solid #333; padding:32px; border-radius:8px; max-width:400px; width:90%; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <h2 id="confirm-title"
+        style="color:#e53935; font-family:'Bebas Neue', sans-serif; font-size:32px; margin-top:0; letter-spacing:1px;">
+        CONFIRM?</h2>
+      <p id="confirm-desc" style="color:#aaa; font-size:15px; margin-bottom:32px; line-height:1.6;">Are you sure?</p>
+      <div style="display:flex; gap:16px; justify-content:center;">
+        <button onclick="closeConfirmModal()"
+          style="padding:12px 24px; background:transparent; border:1px solid #555; color:#fff; cursor:pointer; font-weight:600; font-family:'Barlow Condensed', sans-serif; font-size:16px; letter-spacing:1px; transition:0.2s;">CANCEL</button>
+        <button id="btn-confirm-action"
+          style="padding:12px 24px; background:#e53935; border:1px solid #e53935; color:white; cursor:pointer; font-weight:600; font-family:'Barlow Condensed', sans-serif; font-size:16px; letter-spacing:1px; transition:0.2s;">YES,
+          DO IT</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let _adminKey = '';
+    let _parts = [];
+
+    // ── TOAST ──────────────────────────────────────────────────────────────────
+    function toast(msg, ok = true) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast ${ok ? 'toast-ok' : 'toast-err'} show`;
+      setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ── AUTH ───────────────────────────────────────────────────────────────────
+    async function tryLogin() {
+      const key = document.getElementById('admin-key-input').value.trim();
+      if (!key) return;
+      const res = await fetch('/api/admin/parts', { headers: { 'x-admin-key': key } });
+      if (!res.ok) { document.getElementById('auth-err').classList.remove('hidden'); return; }
+      _adminKey = key;
+      sessionStorage.setItem('mspec_admin_key', key);
+      document.getElementById('auth-gate').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      document.getElementById('btn-logout').style.display = 'inline-block';
+      document.getElementById('auth-err').classList.add('hidden');
+      const data = await res.json();
+      _parts = data.parts || [];
+      renderParts(_parts);
+      renderStockTable(_parts);
+    }
+    document.getElementById('btn-enter').addEventListener('click', tryLogin);
+    document.getElementById('admin-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      _adminKey = ''; sessionStorage.removeItem('mspec_admin_key'); location.reload();
+    });
+
+    // ── RENDER PARTS GRID ──────────────────────────────────────────────────────
+    function renderParts(parts) {
+      const loading = document.getElementById('loading');
+      const grid = document.getElementById('parts-grid');
+      loading.style.display = 'none';
+      grid.style.display = 'grid';
+
+      const partCards = parts.map(p => `
       <div class="part-admin-card" id="card-${p.id}">
         <div class="part-img-area" onclick="document.getElementById('file-${p.id}').click()">
           ${p.image_url
-            ? `<img src="${p.image_url}?t=${Date.now()}" alt="${p.name}" id="img-${p.id}"/>`
-            : `<div class="part-img-placeholder" id="img-${p.id}">
+          ? `<img src="${p.image_url}?t=${Date.now()}" alt="${p.name}" id="img-${p.id}"/>`
+          : `<div class="part-img-placeholder" id="img-${p.id}">
                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                    <rect x="3" y="3" width="18" height="18" rx="2"/>
                    <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -139,15 +162,16 @@
           <p class="part-admin-cat">${p.category || 'PART'}</p>
           <p class="part-admin-name">${p.name}</p>
           <p class="part-admin-price">฿${Number(p.price).toLocaleString('th-TH')}</p>
-          <div class="part-admin-actions">
+          <div class="part-admin-actions" style="flex-wrap: wrap; gap: 4px;">
             <label class="btn-upload" for="file-${p.id}" onclick="event.stopPropagation()">📁 UPLOAD IMAGE</label>
-            ${p.image_url ? `<button class="btn-remove-img" onclick="removeImage(${p.id})">✕ REMOVE</button>` : ''}
+            ${p.image_url ? `<button class="btn-remove-img" onclick="openConfirmModal('remove-image', ${p.id})">✕ REMOVE IMG</button>` : ''}
+            <button class="btn-remove-img" style="border-color: #cf222e; color: #cf222e;" onclick="openConfirmModal('delete-product', ${p.id})">🗑️ DELETE PRODUCT</button>
           </div>
         </div>
       </div>`).join('');
 
-    // Add new product card at the end
-    const newCard = `
+      // Add new product card at the end
+      const newCard = `
       <div class="part-admin-card-new">
         <div class="new-card-header">+ ADD NEW PRODUCT</div>
         <div class="new-card-body">
@@ -162,16 +186,16 @@
         </div>
       </div>`;
 
-    grid.innerHTML = partCards + newCard;
-  }
+      grid.innerHTML = partCards + newCard;
+    }
 
-  // ── RENDER STOCK TABLE ─────────────────────────────────────────────────────
-  function renderStockTable(parts) {
-    const tbody = document.getElementById('stock-tbody');
-    tbody.innerHTML = parts.map(p => {
-      const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
-      const stockLabel = p.stock > 5 ? 'IN STOCK'  : p.stock > 0 ? `LOW (${p.stock})` : 'OUT OF STOCK';
-      return `
+    // ── RENDER STOCK TABLE ─────────────────────────────────────────────────────
+    function renderStockTable(parts) {
+      const tbody = document.getElementById('stock-tbody');
+      tbody.innerHTML = parts.map(p => {
+        const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+        const stockLabel = p.stock > 5 ? 'IN STOCK' : p.stock > 0 ? `LOW (${p.stock})` : 'OUT OF STOCK';
+        return `
         <tr id="row-${p.id}">
           <td class="td-id">#${p.id}</td>
           <td class="td-cat">${p.category || '—'}</td>
@@ -195,164 +219,230 @@
             </button>
           </td>
         </tr>`;
-    }).join('');
-  }
+      }).join('');
+    }
 
-  // ── STOCK HELPERS ──────────────────────────────────────────────────────────
-  function markDirty(partId) {
-    document.getElementById(`save-${partId}`).disabled = false;
-  }
+    // ── STOCK HELPERS ──────────────────────────────────────────────────────────
+    function markDirty(partId) {
+      document.getElementById(`save-${partId}`).disabled = false;
+    }
 
-  function adjustStock(partId, delta) {
-    const input = document.getElementById(`stock-val-${partId}`);
-    const newVal = Math.max(0, (parseInt(input.value) || 0) + delta);
-    input.value = newVal;
-    markDirty(partId);
-  }
+    function adjustStock(partId, delta) {
+      const input = document.getElementById(`stock-val-${partId}`);
+      const newVal = Math.max(0, (parseInt(input.value) || 0) + delta);
+      input.value = newVal;
+      markDirty(partId);
+    }
 
-  async function saveStock(partId) {
-    const input = document.getElementById(`stock-val-${partId}`);
-    const stock = parseInt(input.value);
-    if (isNaN(stock) || stock < 0) { toast('กรอกตัวเลขที่ถูกต้อง', false); return; }
+    async function saveStock(partId) {
+      const input = document.getElementById(`stock-val-${partId}`);
+      const stock = parseInt(input.value);
+      if (isNaN(stock) || stock < 0) { toast('กรอกตัวเลขที่ถูกต้อง', false); return; }
 
-    const btn = document.getElementById(`save-${partId}`);
-    btn.disabled = true;
-    btn.textContent = '...';
+      const btn = document.getElementById(`save-${partId}`);
+      btn.disabled = true;
+      btn.textContent = '...';
 
-    try {
-      const res  = await fetch(`/api/admin/parts/${partId}/stock`, {
-        method:  'PATCH',
-        headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ stock })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      try {
+        const res = await fetch(`/api/admin/parts/${partId}/stock`, {
+          method: 'PATCH',
+          headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
 
-      // Update badge
-      const badge      = document.getElementById(`badge-${partId}`);
-      const stockClass = stock > 5 ? 'stock-ok' : stock > 0 ? 'stock-low' : 'stock-out';
-      const stockLabel = stock > 5 ? 'IN STOCK' : stock > 0 ? `LOW (${stock})` : 'OUT OF STOCK';
-      badge.className   = `stock-badge ${stockClass}`;
-      badge.textContent = stockLabel;
+        // Update badge
+        const badge = document.getElementById(`badge-${partId}`);
+        const stockClass = stock > 5 ? 'stock-ok' : stock > 0 ? 'stock-low' : 'stock-out';
+        const stockLabel = stock > 5 ? 'IN STOCK' : stock > 0 ? `LOW (${stock})` : 'OUT OF STOCK';
+        badge.className = `stock-badge ${stockClass}`;
+        badge.textContent = stockLabel;
 
-      btn.textContent = 'SAVED ✓';
-      toast(`อัพเดตสต็อก ${stock} ชิ้น ✓`);
-      setTimeout(() => { btn.textContent = 'SAVE'; }, 2000);
-    } catch (err) {
-      toast(err.message || 'บันทึกไม่สำเร็จ', false);
+        btn.textContent = 'SAVED ✓';
+        toast(`อัพเดตสต็อก ${stock} ชิ้น ✓`);
+        setTimeout(() => { btn.textContent = 'SAVE'; }, 2000);
+      } catch (err) {
+        toast(err.message || 'บันทึกไม่สำเร็จ', false);
+        btn.disabled = false;
+        btn.textContent = 'SAVE';
+      }
+    }
+
+    // ── ADD NEW PART ───────────────────────────────────────────────────────────
+    async function addNewPart() {
+      const name = document.getElementById('new-name').value.trim();
+      const description = document.getElementById('new-description').value.trim();
+      const category = document.getElementById('new-category').value.trim();
+      const price = parseFloat(document.getElementById('new-price').value);
+      const stock = parseInt(document.getElementById('new-stock').value) || 0;
+
+      if (!name) { toast('กรุณากรอกชื่อสินค้า', false); return; }
+      if (!price || price <= 0) { toast('กรุณากรอกราคา', false); return; }
+
+      try {
+        const res = await fetch('/api/admin/parts', {
+          method: 'POST',
+          headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description, category, price, stock })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+
+        toast(`เพิ่มสินค้า "${name}" เรียบร้อย ✓`);
+
+        // Clear form
+        ['new-name', 'new-description', 'new-category', 'new-price', 'new-stock']
+          .forEach(id => { document.getElementById(id).value = id === 'new-stock' ? '0' : ''; });
+
+        // Reload parts list
+        const partsRes = await fetch('/api/admin/parts', { headers: { 'x-admin-key': _adminKey } });
+        const partsData = await partsRes.json();
+        _parts = partsData.parts || [];
+        renderParts(_parts);
+        renderStockTable(_parts);
+      } catch (err) {
+        toast(err.message || 'เพิ่มสินค้าไม่สำเร็จ', false);
+      }
+    }
+
+    // ── UPLOAD IMAGE ───────────────────────────────────────────────────────────
+    async function uploadImage(partId, input) {
+      if (!input.files.length) return;
+      const file = input.files[0];
+      if (file.size > 8 * 1024 * 1024) { toast('ไฟล์ใหญ่เกิน 8MB', false); return; }
+
+      const card = document.getElementById(`card-${partId}`);
+      card.classList.add('card-uploading');
+      const form = new FormData();
+      form.append('image', file);
+
+      try {
+        const res = await fetch(`/api/admin/parts/${partId}/image`, {
+          method: 'POST', headers: { 'x-admin-key': _adminKey }, body: form
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+        let imgEl = document.getElementById(`img-${partId}`);
+        if (imgEl.tagName === 'DIV') {
+          imgEl.outerHTML = `<img src="${data.image_url}?t=${Date.now()}" alt="" id="img-${partId}" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+        } else {
+          imgEl.src = `${data.image_url}?t=${Date.now()}`;
+        }
+        const actions = card.querySelector('.part-admin-actions');
+        if (!actions.querySelector('.btn-remove-img')) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-remove-img';
+          btn.textContent = '✕ REMOVE';
+          btn.onclick = () => openConfirmModal('remove-image', partId);
+          actions.appendChild(btn);
+        }
+        toast(`อัพโหลดรูปสำเร็จ ✓`);
+      } catch (err) {
+        toast(err.message || 'อัพโหลดล้มเหลว', false);
+      } finally {
+        card.classList.remove('card-uploading');
+        input.value = '';
+      }
+    }
+
+    // ── CONFIRM MODAL (UI) ───────────────────────────────────────────────────
+    let _confirmAction = null;
+    let _confirmPartId = null;
+
+    window.openConfirmModal = function (action, partId) {
+      _confirmAction = action;
+      _confirmPartId = partId;
+
+      const title = document.getElementById('confirm-title');
+      const desc = document.getElementById('confirm-desc');
+      const btn = document.getElementById('btn-confirm-action');
+
+      if (action === 'delete-product') {
+        title.textContent = 'DELETE PRODUCT?';
+        desc.innerHTML = 'คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้อย่างถาวร?<br><span style="color:#ff8a80;">ข้อมูลรูปภาพและจำนวนสต็อกจะถูกลบทั้งหมดและไม่สามารถกู้คืนได้</span>';
+        btn.textContent = 'YES, DELETE IT';
+      } else if (action === 'remove-image') {
+        title.textContent = 'REMOVE IMAGE?';
+        desc.innerHTML = 'คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพสินค้านี้?<br><span style="color:#ff8a80;">รูปภาพเก่าจะหายไป และจะกลับไปใช้รูปภาพเริ่มต้น</span>';
+        btn.textContent = 'YES, REMOVE IMAGE';
+      }
+
+      document.getElementById('confirm-modal').style.display = 'flex';
+    };
+
+    window.closeConfirmModal = function () {
+      _confirmAction = null;
+      _confirmPartId = null;
+      document.getElementById('confirm-modal').style.display = 'none';
+    };
+
+    document.getElementById('btn-confirm-action').addEventListener('click', async () => {
+      if (!_confirmPartId || !_confirmAction) return;
+      const partId = _confirmPartId;
+      const action = _confirmAction;
+
+      const btn = document.getElementById('btn-confirm-action');
+      btn.disabled = true;
+      btn.textContent = 'PROCESSING...';
+
+      if (action === 'delete-product') {
+        try {
+          const res = await fetch(`/api/admin/parts/${partId}`, {
+            method: 'DELETE', headers: { 'x-admin-key': _adminKey }
+          });
+          if (!res.ok) throw new Error('Delete failed');
+
+          toast('ลบสินค้าเรียบร้อยแล้ว ✓');
+          closeConfirmModal();
+
+          const partsRes = await fetch('/api/admin/parts', { headers: { 'x-admin-key': _adminKey } });
+          const partsData = await partsRes.json();
+          _parts = partsData.parts || [];
+          renderParts(_parts);
+          renderStockTable(_parts);
+        } catch {
+          toast('ลบสินค้าล้มเหลว', false);
+        }
+      } else if (action === 'remove-image') {
+        try {
+          const res = await fetch(`/api/admin/parts/${partId}/image`, {
+            method: 'DELETE', headers: { 'x-admin-key': _adminKey }
+          });
+          if (!res.ok) throw new Error('Delete failed');
+
+          const card = document.getElementById(`card-${partId}`);
+          const imgEl = document.getElementById(`img-${partId}`);
+          if (imgEl) {
+            imgEl.outerHTML = `
+              <div class="part-img-placeholder" id="img-${partId}">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>NO IMAGE</span>
+              </div>`;
+          }
+          card.querySelector('.btn-remove-img')?.remove();
+          toast('ลบรูปเรียบร้อย');
+          closeConfirmModal();
+        } catch {
+          toast('ลบรูปล้มเหลว', false);
+        }
+      }
+
       btn.disabled = false;
-      btn.textContent = 'SAVE';
-    }
-  }
-
-  // ── ADD NEW PART ───────────────────────────────────────────────────────────
-  async function addNewPart() {
-    const name        = document.getElementById('new-name').value.trim();
-    const description = document.getElementById('new-description').value.trim();
-    const category    = document.getElementById('new-category').value.trim();
-    const price       = parseFloat(document.getElementById('new-price').value);
-    const stock       = parseInt(document.getElementById('new-stock').value) || 0;
-
-    if (!name)        { toast('กรุณากรอกชื่อสินค้า', false); return; }
-    if (!price || price <= 0) { toast('กรุณากรอกราคา', false); return; }
-
-    try {
-      const res  = await fetch('/api/admin/parts', {
-        method:  'POST',
-        headers: { 'x-admin-key': _adminKey, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ name, description, category, price, stock })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
-
-      toast(`เพิ่มสินค้า "${name}" เรียบร้อย ✓`);
-
-      // Clear form
-      ['new-name','new-description','new-category','new-price','new-stock']
-        .forEach(id => { document.getElementById(id).value = id === 'new-stock' ? '0' : ''; });
-
-      // Reload parts list
-      const partsRes = await fetch('/api/admin/parts', { headers: { 'x-admin-key': _adminKey } });
-      const partsData = await partsRes.json();
-      _parts = partsData.parts || [];
-      renderParts(_parts);
-      renderStockTable(_parts);
-    } catch (err) {
-      toast(err.message || 'เพิ่มสินค้าไม่สำเร็จ', false);
-    }
-  }
-
-  // ── UPLOAD IMAGE ───────────────────────────────────────────────────────────
-  async function uploadImage(partId, input) {
-    if (!input.files.length) return;
-    const file = input.files[0];
-    if (file.size > 8 * 1024 * 1024) { toast('ไฟล์ใหญ่เกิน 8MB', false); return; }
-
-    const card = document.getElementById(`card-${partId}`);
-    card.classList.add('card-uploading');
-    const form = new FormData();
-    form.append('image', file);
-
-    try {
-      const res  = await fetch(`/api/admin/parts/${partId}/image`, {
-        method: 'POST', headers: { 'x-admin-key': _adminKey }, body: form
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-
-      let imgEl = document.getElementById(`img-${partId}`);
-      if (imgEl.tagName === 'DIV') {
-        imgEl.outerHTML = `<img src="${data.image_url}?t=${Date.now()}" alt="" id="img-${partId}" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
-      } else {
-        imgEl.src = `${data.image_url}?t=${Date.now()}`;
-      }
-      const actions = card.querySelector('.part-admin-actions');
-      if (!actions.querySelector('.btn-remove-img')) {
-        const btn = document.createElement('button');
-        btn.className = 'btn-remove-img';
-        btn.textContent = '✕ REMOVE';
-        btn.onclick = () => removeImage(partId);
-        actions.appendChild(btn);
-      }
-      toast(`อัพโหลดรูปสำเร็จ ✓`);
-    } catch (err) {
-      toast(err.message || 'อัพโหลดล้มเหลว', false);
-    } finally {
-      card.classList.remove('card-uploading');
-      input.value = '';
-    }
-  }
-
-  // ── REMOVE IMAGE ───────────────────────────────────────────────────────────
-  async function removeImage(partId) {
-    if (!confirm('ลบรูปนี้ออก?')) return;
-    try {
-      const res = await fetch(`/api/admin/parts/${partId}/image`, {
-        method: 'DELETE', headers: { 'x-admin-key': _adminKey }
-      });
-      if (!res.ok) throw new Error('Delete failed');
-
-      const card  = document.getElementById(`card-${partId}`);
-      const imgEl = document.getElementById(`img-${partId}`);
-      imgEl.outerHTML = `
-        <div class="part-img-placeholder" id="img-${partId}">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          <span>NO IMAGE</span>
-        </div>`;
-      card.querySelector('.btn-remove-img')?.remove();
-      toast('ลบรูปเรียบร้อย');
-    } catch { toast('ลบรูปล้มเหลว', false); }
-  }
-
-  // ── AUTO-LOGIN ─────────────────────────────────────────────────────────────
-  window.addEventListener('DOMContentLoaded', async () => {
-    const saved = sessionStorage.getItem('mspec_admin_key');
-    if (saved) { document.getElementById('admin-key-input').value = saved; await tryLogin(); }
-  });
-</script>
+      if (action === 'delete-product') btn.textContent = 'YES, DELETE IT';
+      else if (action === 'remove-image') btn.textContent = 'YES, REMOVE IMAGE';
+    });
+    // ── AUTO-LOGIN ─────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+      const saved = sessionStorage.getItem('mspec_admin_key');
+      if (saved) { document.getElementById('admin-key-input').value = saved; await tryLogin(); }
+    });
+  </script>
 </body>
+
 </html>

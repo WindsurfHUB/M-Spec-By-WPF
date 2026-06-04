@@ -46,5 +46,6 @@ router.post('/parts',               adminGuard, adminController.addPart);
 router.patch('/parts/:id/stock',    adminGuard, adminController.updateStock);
 router.post('/parts/:id/image',     adminGuard, upload.single('image'), adminController.uploadImage);
 router.delete('/parts/:id/image',   adminGuard, adminController.deleteImage);
+router.delete('/parts/:id',         adminGuard, adminController.deletePart);
 
 module.exports = router;
