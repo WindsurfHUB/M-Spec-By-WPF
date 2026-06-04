@@ -262,11 +262,88 @@ On first run, `initDb()` creates all 7 tables and seeds 8 rare parts with produc
 
 7 relational tables with full FK constraint enforcement:
 
+```mermaid
+erDiagram
+
+    USERS {
+        INTEGER id PK
+        TEXT username
+        TEXT email
+        TEXT password_hash
+        DATETIME created_at
+    }
+
+    PARTS {
+        INTEGER id PK
+        TEXT name
+        TEXT description
+        TEXT category
+        REAL price
+        INTEGER stock
+        TEXT image_url
+    }
+
+    DYNOSLOTS {
+        INTEGER id PK
+        DATE slot_date
+        TEXT slot_time
+        INTEGER max_capacity
+        INTEGER current_bookings
+    }
+
+    ORDERS {
+        INTEGER id PK
+        INTEGER user_id FK
+        REAL total_price
+        DATETIME created_at
+    }
+
+    ORDERITEMS {
+        INTEGER id PK
+        INTEGER order_id FK
+        INTEGER part_id FK
+        INTEGER quantity
+        REAL price_at_purchase
+    }
+
+    ORDERSTATUSHISTORY {
+        INTEGER id PK
+        INTEGER order_id FK
+        TEXT status
+        DATETIME changed_at
+    }
+
+    BOOKINGS {
+        INTEGER id PK
+        INTEGER user_id FK
+        INTEGER slot_id FK
+        TEXT car_details
+        TEXT status
+        DATETIME created_at
+    }
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ BOOKINGS : makes
+
+    ORDERS ||--o{ ORDERITEMS : contains
+    PARTS ||--o{ ORDERITEMS : purchased_as
+
+    ORDERS ||--o{ ORDERSTATUSHISTORY : tracks
+
+    DYNOSLOTS ||--o{ BOOKINGS : reserves
 ```
-Users ──────────────┐
-                    ├──→ Orders ──→ OrderItems ──→ Parts
-                    │         └──→ OrderStatusHistory
-                    └──→ Bookings ──→ DynoSlots
+```mermaid
+erDiagram
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ BOOKINGS : books
+
+    ORDERS ||--|{ ORDERITEMS : contains
+    PARTS ||--o{ ORDERITEMS : referenced_by
+
+    ORDERS ||--o{ ORDERSTATUSHISTORY : has
+
+    DYNOSLOTS ||--o{ BOOKINGS : assigned_to
 ```
 
 | Table | Purpose |
@@ -305,11 +382,11 @@ This project implements all 10 graded criteria from the 960121 course:
 
 ## 👥 Team Roles
 
-| Role | Responsibilities | Graded Criteria |
+| Role | Responsibilities |
 |---|---|---|
-| **Lead Architect** (Backend/DevOps) | SQL schema, all services, controllers, routes, middleware, admin panel backend, `.env` security, Go-Live audit | 1, 5, 6, 7, 8, 9, 10 |
-| **Integration Engineer** (API/State) | `auth.js`, `catalog.js`, `cart.js`, `checkout.js` — fetch logic, JWT storage, cartState | 2, 4 |
-| **UX Engineer** (Frontend/Interaction) | `index.html`, `booking.html`, `orders.html`, `style.css`, `main.js`, `booking-page.js`, `orders-page.js` — render functions, event delegation, debounce | 2, 3 |
+| **Lead Architect** (Backend/DevOps) | SQL schema, all services, controllers, routes, middleware, admin panel backend, `.env` security, Go-Live audit |
+| **Integration Engineer** (API/State) | `auth.js`, `catalog.js`, `cart.js`, `checkout.js` — fetch logic, JWT storage, cartState |
+| **UX Engineer** (Frontend/Interaction) | `index.html`, `booking.html`, `orders.html`, `style.css`, `main.js`, `booking-page.js`, `orders-page.js` — render functions, event delegation, debounce |
 
 ---
 
