@@ -262,11 +262,88 @@ On first run, `initDb()` creates all 7 tables and seeds 8 rare parts with produc
 
 7 relational tables with full FK constraint enforcement:
 
+```mermaid
+erDiagram
+
+    USERS {
+        INTEGER id PK
+        TEXT username
+        TEXT email
+        TEXT password_hash
+        DATETIME created_at
+    }
+
+    PARTS {
+        INTEGER id PK
+        TEXT name
+        TEXT description
+        TEXT category
+        REAL price
+        INTEGER stock
+        TEXT image_url
+    }
+
+    DYNOSLOTS {
+        INTEGER id PK
+        DATE slot_date
+        TEXT slot_time
+        INTEGER max_capacity
+        INTEGER current_bookings
+    }
+
+    ORDERS {
+        INTEGER id PK
+        INTEGER user_id FK
+        REAL total_price
+        DATETIME created_at
+    }
+
+    ORDERITEMS {
+        INTEGER id PK
+        INTEGER order_id FK
+        INTEGER part_id FK
+        INTEGER quantity
+        REAL price_at_purchase
+    }
+
+    ORDERSTATUSHISTORY {
+        INTEGER id PK
+        INTEGER order_id FK
+        TEXT status
+        DATETIME changed_at
+    }
+
+    BOOKINGS {
+        INTEGER id PK
+        INTEGER user_id FK
+        INTEGER slot_id FK
+        TEXT car_details
+        TEXT status
+        DATETIME created_at
+    }
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ BOOKINGS : makes
+
+    ORDERS ||--o{ ORDERITEMS : contains
+    PARTS ||--o{ ORDERITEMS : purchased_as
+
+    ORDERS ||--o{ ORDERSTATUSHISTORY : tracks
+
+    DYNOSLOTS ||--o{ BOOKINGS : reserves
 ```
-Users ──────────────┐
-                    ├──→ Orders ──→ OrderItems ──→ Parts
-                    │         └──→ OrderStatusHistory
-                    └──→ Bookings ──→ DynoSlots
+```mermaid
+erDiagram
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ BOOKINGS : books
+
+    ORDERS ||--|{ ORDERITEMS : contains
+    PARTS ||--o{ ORDERITEMS : referenced_by
+
+    ORDERS ||--o{ ORDERSTATUSHISTORY : has
+
+    DYNOSLOTS ||--o{ BOOKINGS : assigned_to
 ```
 
 | Table | Purpose |
