@@ -305,11 +305,11 @@ This project implements all 10 graded criteria from the 960121 course:
 
 ## 👥 Team Roles
 
-| Role | Responsibilities | Graded Criteria |
+| Role | Responsibilities |
 |---|---|---|
-| **Lead Architect** (Backend/DevOps) | SQL schema, all services, controllers, routes, middleware, admin panel backend, `.env` security, Go-Live audit | 1, 5, 6, 7, 8, 9, 10 |
-| **Integration Engineer** (API/State) | `auth.js`, `catalog.js`, `cart.js`, `checkout.js` — fetch logic, JWT storage, cartState | 2, 4 |
-| **UX Engineer** (Frontend/Interaction) | `index.html`, `booking.html`, `orders.html`, `style.css`, `main.js`, `booking-page.js`, `orders-page.js` — render functions, event delegation, debounce | 2, 3 |
+| **Lead Architect** (Backend/DevOps) | SQL schema, all services, controllers, routes, middleware, admin panel backend, `.env` security, Go-Live audit |
+| **Integration Engineer** (API/State) | `auth.js`, `catalog.js`, `cart.js`, `checkout.js` — fetch logic, JWT storage, cartState |
+| **UX Engineer** (Frontend/Interaction) | `index.html`, `booking.html`, `orders.html`, `style.css`, `main.js`, `booking-page.js`, `orders-page.js` — render functions, event delegation, debounce |
 
 ---
 
